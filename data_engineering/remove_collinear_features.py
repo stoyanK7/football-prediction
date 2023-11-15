@@ -11,8 +11,8 @@ def remove_collinear_features(df, threshold):
     :return: df: dataframe that contains only the non-highly-collinear features
     """
 
-    # Calculate the correlation matrix
-    corr_matrix = df.corr()
+    # Calculate the correlation matrix.
+    corr_matrix = df.corr(numeric_only=False)
     iters = range(len(corr_matrix.columns) - 1)
     drop_cols = []
 
