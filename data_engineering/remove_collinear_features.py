@@ -12,7 +12,7 @@ def remove_collinear_features(df, threshold):
     """
 
     # Calculate the correlation matrix.
-    corr_matrix = df.corr(numeric_only=False)
+    corr_matrix = df.corr()
     iters = range(len(corr_matrix.columns) - 1)
     drop_cols = []
 
