@@ -1,6 +1,10 @@
 name: football_prediction
+channels:
+  - conda-forge
 dependencies:
   - numpy
   - pandas
   - beautifulsoup4
   - scikit-learn
+  - ruff
+  - pytest
