@@ -38,3 +38,4 @@ skip-magic-trailing-comma = true
 [lint.per-file-ignores]
 # Do not lint notebooks.
 "notebooks/*" = ["ALL"]
+"tests/*" = ["ANN"]
