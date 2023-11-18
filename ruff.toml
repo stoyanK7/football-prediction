@@ -1,0 +1,34 @@
+line-length = 80
+indent-width = 4
+extend-select = [
+    "D",
+]
+ignore = [
+    # Ignore the following rule codes as recommended by ruff. We do this because
+    # we are using ruff also for formatting and we want to avoid conflicts:
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "W191", # tab-indentation
+    "E111", # indentation-with-invalid-multiple
+    "E114", # indentation-with-invalid-multiple-comment
+    "E117", # over-indented
+    "D206", # indent-with-spaces
+    "D300", # triple-single-quotes
+    "Q000", # bad-quotes-inline-string
+    "Q001", # bad-quotes-multiline-string
+    "Q002", # bad-quotes-docstring
+    "Q003", # avoidable-escaped-quote
+    "COM812", # missing-trailing-comma
+    "COM819", # prohibited-trailing-comma
+    "ISC001", # single-line-implicit-string-concatenation
+    "ISC002", # multi-line-implicit-string-concatenation
+    # End of ruff ignore list.
+    "D211", # no-blank-line-before-class
+    "D212", # multi-line-summary-first-line
+    "D205", # blank-line-after-summary
+]
+
+[format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = true
