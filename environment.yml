@@ -8,5 +8,6 @@ dependencies:
   - scikit-learn
   - ruff
   - pytest
+  - pytest-mock
   - requests
   - tqdm
