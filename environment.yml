@@ -9,3 +9,4 @@ dependencies:
   - ruff
   - pytest
   - requests
+  - tqdm
