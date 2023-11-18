@@ -2,6 +2,7 @@ line-length = 80
 indent-width = 4
 extend-select = [
     "D",
+    "ANN",
 ]
 ignore = [
     # Ignore the following rule codes as recommended by ruff. We do this because
@@ -25,6 +26,7 @@ ignore = [
     "D211", # no-blank-line-before-class
     "D212", # multi-line-summary-first-line
     "D205", # blank-line-after-summary
+    "ANN101", # missing-type-self
 ]
 
 [format]
