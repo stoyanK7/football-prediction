@@ -6,6 +6,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
+TEST_DATA_DIR = os.path.join(DATA_DIR, 'test')
 
 
 FDCUK_DIR = os.path.join(ROOT_DIR, 'data', 'football-data.co.uk')
