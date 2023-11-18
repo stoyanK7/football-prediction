@@ -10,7 +10,6 @@ def remove_collinear_features(df, threshold):
     :param threshold: features with correlations greater than this value are removed
     :return: df: dataframe that contains only the non-highly-collinear features
     """
-
     # Calculate the correlation matrix.
     corr_matrix = df.corr()
     iters = range(len(corr_matrix.columns) - 1)
@@ -18,8 +17,8 @@ def remove_collinear_features(df, threshold):
 
     # Iterate through the correlation matrix and compare correlations.
     for i in iters:
-        for j in range(i+1):
-            item = corr_matrix.iloc[j:(j+1), (i+1):(i+2)]
+        for j in range(i + 1):
+            item = corr_matrix.iloc[j : (j + 1), (i + 1) : (i + 2)]
             col = item.columns
             val = abs(item.values)
 

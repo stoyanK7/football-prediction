@@ -21,7 +21,7 @@ def make_predictions(data, predictors):
     model = RandomForestClassifier(
         n_estimators=50,  # number of trees in the forest
         min_samples_split=10,  # number of samples required to split an internal node
-        random_state=1  # seed
+        random_state=1,  # seed
     )
     model.fit(train_set[predictors], train_set['target'])
 
@@ -33,6 +33,6 @@ def make_predictions(data, predictors):
     # Create a dataframe containing the actual and predicted values.
     combined = pd.DataFrame(
         dict(actual=test_set['target'], prediction=predictions),
-        index=test_set.index
+        index=test_set.index,
     )
     return combined
