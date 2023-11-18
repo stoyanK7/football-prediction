@@ -34,3 +34,7 @@ quote-style = "single"
 indent-style = "space"
 line-ending = "lf"
 skip-magic-trailing-comma = true
+
+[lint.per-file-ignores]
+# Do not lint notebooks.
+"notebooks/*" = ["ALL"]
