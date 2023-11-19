@@ -4,7 +4,7 @@ from pathlib import Path
 
 from src.data.fbref_crawler import FbrefCrawler
 from src.data.fbref_scraper import FbrefScraper
-from settings import RAW_DATA_DIR, INTERIM_DATA_DIR, REQUEST_HEADERS
+from settings import RAW_DATA_DIR, REQUEST_HEADERS
 
 
 def main() -> None:
@@ -21,7 +21,8 @@ def main() -> None:
 
     scraper = FbrefScraper(
         pages_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
-        interim_data_path=Path(INTERIM_DATA_DIR),
+        raw_data_path=Path(RAW_DATA_DIR),
+        competition='bundesliga',
     )
     scraper.scrape()
 

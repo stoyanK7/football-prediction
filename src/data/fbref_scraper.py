@@ -28,19 +28,22 @@ class FbrefScraper:
         'misc': 'Miscellaneous Stats',
     }
 
-    def __init__(self, pages_path: Path, interim_data_path: Path) -> None:
+    def __init__(
+        self, pages_path: Path, raw_data_path: Path, competition: str
+    ) -> None:
         """
         Initialize the scraper.
 
         :param pages_path: The path where the pages have been saved.
-        :param interim_data_path: The path where the interim data will
-            be saved.
+        :param raw_data_path: The path where the raw data will be saved.
+        :param competition: The competition name.
         """
         self.pages_path = pages_path
-        self.interim_data_path = interim_data_path
-        if not self.interim_data_path.exists():
-            self.interim_data_path.mkdir(parents=True)
-            tqdm.write(f'Created {self.interim_data_path}')
+        self.raw_data_path = raw_data_path
+        if not self.raw_data_path.exists():
+            self.raw_data_path.mkdir(parents=True)
+            tqdm.write(f'Created {self.raw_data_path}')
+        self.competition = competition
 
     def scrape(self) -> None:
         """Scrape the data off the saved pages."""
@@ -75,8 +78,13 @@ class FbrefScraper:
             all_matches.append(team_scores_and_fixtures_df)
 
         all_matches_df = pd.concat(all_matches)
-        all_matches_df.to_csv(
-            f'{self.interim_data_path}/bundesliga_matches.csv', index=False
+        path_to_save = Path(
+            self.raw_data_path, f'{self.competition}_matches.csv'
+        )
+        all_matches_df.to_csv(path_to_save, index=False)
+        tqdm.write(
+            f'Saved {len(all_matches_df)} matches to '
+            f'{path_to_save}_matches.csv'
         )
 
     @staticmethod
