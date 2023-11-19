@@ -2,14 +2,15 @@
 
 from pathlib import Path
 
+from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
 from src.data.fbref_crawler import FbrefCrawler
 from src.data.fbref_scraper import FbrefScraper
 from settings import RAW_DATA_DIR, REQUEST_HEADERS
 
 
-def main() -> None:
-    """Run all data collection, cleaning, and processing."""
-    crawler = FbrefCrawler(
+def crawl_fbref() -> None:
+    """Crawl https://fbref.com."""
+    fbref_crawler = FbrefCrawler(
         base_url='https://fbref.com',
         stats_href='/en/comps/20/Bundesliga-Stats',
         pages_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
@@ -17,14 +18,34 @@ def main() -> None:
         seconds_to_sleep=10,
         request_headers=REQUEST_HEADERS,
     )
-    crawler.crawl()
+    fbref_crawler.crawl()
 
-    scraper = FbrefScraper(
+
+def scrape_fbref() -> None:
+    """Scrape https://fbref.com."""
+    fbref_scraper = FbrefScraper(
         pages_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
-        raw_data_path=Path(RAW_DATA_DIR),
         competition='bundesliga',
     )
-    scraper.scrape()
+    fbref_scraper.scrape()
+
+
+def scrape_football_data_co_uk() -> None:
+    """Scrape https://football-data.co.uk."""
+    football_data_co_uk_crawler = FootballDataCoUkScraper(
+        odds_href='germanym.php',
+        competition='Bundesliga 1',
+        raw_data_path=Path(RAW_DATA_DIR),
+        seconds_to_sleep=10,
+    )
+    football_data_co_uk_crawler.scrape()
+
+
+def main() -> None:
+    """Run all data collection, cleaning, and processing."""
+    crawl_fbref()
+    scrape_fbref()
+    scrape_football_data_co_uk()
 
 
 if __name__ == '__main__':
