@@ -13,3 +13,4 @@ dependencies:
   - tqdm
   - lxml
   - jupyter
+  - html5lib
