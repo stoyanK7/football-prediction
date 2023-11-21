@@ -1,4 +1,4 @@
-"""Contains the class that is responsible for scraping https://fbref.com."""
+"""Contains the class that is responsible for scraping FBref."""
 import re
 from io import StringIO
 from os import listdir
@@ -7,38 +7,27 @@ from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
 
+from src.data.fbref import categories
+
 
 class FbrefScraper:
 
     """
-    Scrapes data off https://fbref.com pages that have been crawled by
+    Scrapes data off FBref pages that have been crawled by
     :class:`FbrefCrawler`.
     """
 
-    # Href and caption for each stat table on the team stats page.
-    # For example <a href="..shooting..">Shooting</a>
-    statistics = {
-        'shooting': 'Shooting',
-        'keeper': 'Goalkeeping',
-        'passing': 'Passing',
-        'passing_types': 'Pass Types',
-        'gca': 'Goal and Shot Creation',
-        'defense': 'Defensive Actions',
-        'possession': 'Possession',
-        'misc': 'Miscellaneous Stats',
-    }
-
     def __init__(
-        self, pages_path: Path, raw_data_path: Path, competition: str
+        self, html_folder_path: Path, raw_data_path: Path, competition: str
     ) -> None:
         """
         Initialize the scraper.
 
-        :param pages_path: The path where the pages have been saved.
+        :param html_folder_path: The path where the pages have been saved.
         :param raw_data_path: The path where the raw data will be saved.
         :param competition: The competition name.
         """
-        self.pages_path = pages_path
+        self.html_folder_path = html_folder_path
         self.raw_data_path = raw_data_path
         if not self.raw_data_path.exists():
             self.raw_data_path.mkdir(parents=True)
@@ -56,7 +45,7 @@ class FbrefScraper:
             tqdm.write(f'Scraping {team_stats_page_file}')
             team_name = self.get_team_name(team_stats_page_file)
             team_stats_file = open(
-                f'{self.pages_path}/{team_stats_page_file}', 'r'
+                f'{self.html_folder_path}/{team_stats_page_file}', 'r'
             )
             # Wrap in StringIO to prevent warnings.
             team_stats_file_contents = StringIO(team_stats_file.read())
@@ -67,7 +56,7 @@ class FbrefScraper:
             # Add team column because the table doesn't have it.
             team_scores_and_fixtures_df['Team'] = team_name
 
-            for stat_href, stat_caption in self.statistics.items():
+            for stat_href, stat_caption in categories.items():
                 stat_df = self.get_stats_dataframe(
                     team_stats_page_file, stat_href, stat_caption, pages
                 )
@@ -109,7 +98,7 @@ class FbrefScraper:
 
         :return: A list of files.
         """
-        pages = listdir(self.pages_path)
+        pages = listdir(self.html_folder_path)
         tqdm.write(f'Found {len(pages)} pages')
         return pages
 
@@ -160,7 +149,7 @@ class FbrefScraper:
         ][0]
         # stats_page is now:
         # https_((fbref.com(en(squads(60b5e41f(2018-2019(matchlogs(all_comps(keeper(...html
-        stats_file = open(f'{self.pages_path}/{stats_page}', 'r')
+        stats_file = open(f'{self.html_folder_path}/{stats_page}', 'r')
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read())
         stats_df = pd.read_html(stats_file_contents, match=stat_caption)[0]

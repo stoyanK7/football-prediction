@@ -9,9 +9,8 @@ from settings import RAW_DATA_DIR, REQUEST_HEADERS
 
 
 def crawl_fbref() -> None:
-    """Crawl https://fbref.com."""
+    """Crawl FBref."""
     fbref_crawler = FbrefCrawler(
-        base_url='https://fbref.com',
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
         html_folder_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
         seasons_to_crawl=7,
@@ -22,9 +21,9 @@ def crawl_fbref() -> None:
 
 
 def scrape_fbref() -> None:
-    """Scrape https://fbref.com."""
+    """Scrape FBref."""
     fbref_scraper = FbrefScraper(
-        pages_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
+        html_folder_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
         competition='bundesliga',
     )
     fbref_scraper.scrape()

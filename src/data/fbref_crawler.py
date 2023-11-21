@@ -1,4 +1,4 @@
-"""Contains the class that is responsible for crawling https://fbref.com."""
+"""Contains the class that is responsible for crawling FBref."""
 
 from pathlib import Path
 from time import sleep
@@ -7,31 +7,18 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+from src.data.fbref import categories
+
 
 class FbrefCrawler:
 
     """
-    Crawls https://fbref.com and saves the HTML pages so that they can be
-    scraped later.
+    Crawls FBref and saves the HTML pages so that they
+    can be scraped later.
     """
 
     # The base URL of the website.
     base_url: str = 'https://fbref.com'
-
-    # The hrefs to the categories of the statistics.
-    # For example, to see Bayern Munich's shooting statistics, the href is:
-    # /en/squads/054efa67/2023-2024/matchlogs/all_comps/shooting
-    #                                                   ^^^^^^^^
-    categories = [
-        'shooting',
-        'keeper',
-        'passing',
-        'passing_types',
-        'gca',
-        'defense',
-        'possession',
-        'misc',
-    ]
 
     def __init__(
         self,
@@ -55,7 +42,7 @@ class FbrefCrawler:
             and seasons_to_crawl is 3, then the seasons 2021-2022, 2020-2021
             and 2019-2020 will be crawled.
         :param seconds_to_sleep_between_requests: The number of seconds to sleep
-            between requests to fbref. This is to avoid getting blocked by
+            between requests to FBref. This is to avoid getting blocked by
             the server.
         :param request_headers: The headers to use for the requests. It is
             recommended to pass a User-Agent header.
@@ -134,7 +121,7 @@ class FbrefCrawler:
         team_page_html = self.save_page(team_href)
         team_page_soup = BeautifulSoup(team_page_html, features='html.parser')
 
-        for category in self.categories:
+        for category in categories:
             self.save_page(self.get_category_href(team_page_soup, category))
 
     @staticmethod
