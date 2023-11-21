@@ -12,10 +12,10 @@ def crawl_fbref() -> None:
     """Crawl https://fbref.com."""
     fbref_crawler = FbrefCrawler(
         base_url='https://fbref.com',
-        stats_href='/en/comps/20/Bundesliga-Stats',
-        pages_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
+        competition_stats_href='/en/comps/20/Bundesliga-Stats',
+        html_folder_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
         seasons_to_crawl=7,
-        seconds_to_sleep=10,
+        seconds_to_sleep_between_requests=10,
         request_headers=REQUEST_HEADERS,
     )
     fbref_crawler.crawl()

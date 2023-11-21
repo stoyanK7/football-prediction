@@ -1,14 +1,10 @@
-"""
-Contains the class that is responsible for crawling
-https://fbref.com.
-"""
+"""Contains the class that is responsible for crawling https://fbref.com."""
 
 from pathlib import Path
 from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
-from requests import Response
 from tqdm import tqdm
 
 
@@ -16,62 +12,130 @@ class FbrefCrawler:
 
     """
     Crawls https://fbref.com and saves the HTML pages so that they can be
-    parsed later.
+    scraped later.
     """
+
+    # The base URL of the website.
+    base_url: str = 'https://fbref.com'
+
+    # The hrefs to the categories of the statistics.
+    # For example, to see Bayern Munich's shooting statistics, the href is:
+    # /en/squads/054efa67/2023-2024/matchlogs/all_comps/shooting
+    #                                                   ^^^^^^^^
+    categories = [
+        'shooting',
+        'keeper',
+        'passing',
+        'passing_types',
+        'gca',
+        'defense',
+        'possession',
+        'misc',
+    ]
 
     def __init__(
         self,
-        base_url: str,
-        stats_href: str,
-        pages_path: Path,
-        seasons_to_crawl: int,
-        seconds_to_sleep: int,
+        competition_stats_href: str,
+        html_folder_path: Path,
+        seasons_to_crawl: int = 1,
+        seconds_to_sleep_between_requests: int = 4,
         request_headers: dict[str, str] = None,
     ) -> None:
         """
         Initialize the crawler.
 
-        :param base_url: The base url of the website.
-        :param stats_href: The href of the stats page. This can be swapped out
-            for other leagues.
-        :param pages_path: The path where the pages should be saved.
-        :param seasons_to_crawl: The number of seasons to crawl from the
-            stats page.
-        :param seconds_to_sleep: The number of seconds to sleep
-            between requests.
-        :param request_headers: The headers to use for the requests.
+        :param competition_stats_href: The href of the competition statistics
+            page. This page contains the standings table. It could be for any
+            competition and year. For example
+            '/en/comps/20/2022-2023/2022-2023-Bundesliga-Stats'.
+        :param html_folder_path: The path where the pages should be saved. If
+            the folder does not exist, it will be created.
+        :param seasons_to_crawl: The number of seasons to crawl back including
+            the current season. For example if the current season is 2021-2022
+            and seasons_to_crawl is 3, then the seasons 2021-2022, 2020-2021
+            and 2019-2020 will be crawled.
+        :param seconds_to_sleep_between_requests: The number of seconds to sleep
+            between requests to fbref. This is to avoid getting blocked by
+            the server.
+        :param request_headers: The headers to use for the requests. It is
+            recommended to pass a User-Agent header.
         """
-        self.base_url = base_url
-        self.stats_href = stats_href
-        self.pages_path = pages_path
-        if not self.pages_path.exists():
-            self.pages_path.mkdir(parents=True)
-            tqdm.write(f'Created {self.pages_path}')
+        self.competition_stats_href = competition_stats_href
+        self.html_folder_path = html_folder_path
+        if not self.html_folder_path.exists():
+            self.html_folder_path.mkdir(parents=True)
+            tqdm.write(f'Created folder {self.html_folder_path}')
+
         self.seasons_to_crawl = seasons_to_crawl
-        self.seconds_to_sleep = seconds_to_sleep
+        self.seconds_to_sleep = seconds_to_sleep_between_requests
         self.request_headers = request_headers
 
     def crawl(self) -> None:
-        """Crawls the website and saves the pages."""
-        current_season_stats_href = self.stats_href
+        """
+        Crawl each season and each team in the competition. For each team,
+        crawl the team page and the page for each category. Then crawl the
+        previous season.
+        """
+        current_season_stats_href = self.competition_stats_href
 
-        for season_no in tqdm(
-            range(self.seasons_to_crawl), desc='Seasons crawled'
-        ):
+        for _ in tqdm(range(self.seasons_to_crawl), desc='Seasons crawled'):
             stats_page_html = self.save_page(current_season_stats_href)
             stats_page_soup = BeautifulSoup(
-                stats_page_html.text, features='html.parser'
+                stats_page_html, features='html.parser'
             )
             teams_hrefs = self.get_teams_hrefs(stats_page_soup)
 
             for team_href in teams_hrefs:
                 self.crawl_team(team_href)
 
-            href_to_previous_season = self.get_href_to_previous_season(
+            # Point to the previous season for the next iteration.
+            current_season_stats_href = self.get_href_to_previous_season(
                 stats_page_soup
             )
-            current_season_stats_href = href_to_previous_season
-            sleep(self.seconds_to_sleep)
+
+    def save_page(self, href: str) -> str:
+        """
+        Save the page from the given href. Build the url from the href and
+        make a request to it. Save the response to a file.
+
+        :param href: href to save the page from.
+        :return: Response from the request.
+        """
+        url = self.build_url(href)
+        html = self.get_html(url)
+
+        file_name = f'{self.convert_to_valid_file_name(url)}.html'
+        self.save_file(file_name, html)
+
+        sleep(self.seconds_to_sleep)
+        return html
+
+    @staticmethod
+    def get_teams_hrefs(stats_page_soup: BeautifulSoup) -> list[str]:
+        """
+        Get the hrefs to the teams from the stats page.
+
+        :param stats_page_soup: The soup of the stats page.
+        :return: A list of hrefs to the teams stats pages.
+        """
+        # Get the standings table with points, ranking, etc.
+        standings_table = stats_page_soup.select_one('table.stats_table')
+        teams_anchors = standings_table.select('tr td:nth-of-type(1) a')
+        teams_hrefs = [anchor['href'] for anchor in teams_anchors]
+        return teams_hrefs
+
+    def crawl_team(self, team_href: str) -> None:
+        """
+        Crawl the given team. Save the team page and the pages for the
+        categories.
+
+        :param team_href: The href to the team.
+        """
+        team_page_html = self.save_page(team_href)
+        team_page_soup = BeautifulSoup(team_page_html, features='html.parser')
+
+        for category in self.categories:
+            self.save_page(self.get_category_href(team_page_soup, category))
 
     @staticmethod
     def get_href_to_previous_season(stats_page_soup: BeautifulSoup) -> str:
@@ -86,55 +150,6 @@ class FbrefCrawler:
         return stats_page_soup.select_one(
             'div.prevnext a:-soup-contains("Previous Season")'
         )['href']
-
-    @staticmethod
-    def get_teams_hrefs(stats_page_soup: BeautifulSoup) -> list[str]:
-        """
-        Get the hrefs to the teams from the stats page.
-
-        :param stats_page_soup: The soup of the stats page.
-        :return: A list of hrefs to the teams.
-        """
-        standings_table = stats_page_soup.select_one('table.stats_table')
-        teams_anchors = standings_table.select('tr td:nth-of-type(1) a')
-        teams_hrefs = [anchor['href'] for anchor in teams_anchors]
-        return teams_hrefs
-
-    def crawl_team(self, team_href: str) -> None:
-        """
-        Crawl the team from the given href. Save all categories.
-
-        :param team_href: The href to the team.
-        """
-        team_page_html = self.save_page(team_href)
-        team_page_soup = BeautifulSoup(
-            team_page_html.text, features='html.parser'
-        )
-
-        self.save_page(self.get_category_href(team_page_soup, 'shooting'))
-        self.save_page(self.get_category_href(team_page_soup, 'keeper'))
-        self.save_page(self.get_category_href(team_page_soup, 'passing'))
-        self.save_page(self.get_category_href(team_page_soup, 'passing_types'))
-        self.save_page(self.get_category_href(team_page_soup, 'gca'))
-        self.save_page(self.get_category_href(team_page_soup, 'defense'))
-        self.save_page(self.get_category_href(team_page_soup, 'possession'))
-        self.save_page(self.get_category_href(team_page_soup, 'misc'))
-
-    def save_page(self, href: str) -> Response:
-        """
-        Save the page from the given href.
-
-        :param href: href to save the page from.
-        :return: Response from the request.
-        """
-        url = self.build_url(href)
-        html = self.get_html(url)
-
-        file_name = f'{self.convert_to_valid_file_name(url)}.html'
-        self.save_file(file_name, html.text)
-
-        sleep(self.seconds_to_sleep)
-        return html
 
     @staticmethod
     def convert_to_valid_file_name(name_to_convert: str) -> str:
@@ -154,21 +169,21 @@ class FbrefCrawler:
         :param file_name: Name of the file to save the text to.
         :param text: The text to save.
         """
-        file_path = Path(self.pages_path, file_name)
+        file_path = Path(self.html_folder_path, file_name)
         with open(file_path, 'w') as f:
             f.write(text)
             tqdm.write(f'Saved {file_path}')
 
-    def get_html(self, url: str) -> Response:
+    def get_html(self, url: str) -> str:
         """
         Get the HTML from the given url.
 
         :param url: The url to get the HTML from.
-        :return: The HTML.
+        :return: The HTML page as a string.
         """
         html = requests.get(url, headers=self.request_headers)
-        tqdm.write(f'Got HTML from {url}')
-        return html
+        tqdm.write(f'Made a request to {url}')
+        return html.text
 
     def build_url(self, href: str) -> str:
         """
@@ -177,7 +192,8 @@ class FbrefCrawler:
         :param href: Href to build the url from.
         :return: The url.
         """
-        url = f'{self.base_url}{href}'
+        href = href.lstrip('/')
+        url = f'{self.base_url}/{href}'
         return url
 
     @staticmethod
