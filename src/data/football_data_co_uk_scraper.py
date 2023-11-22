@@ -11,7 +11,7 @@ class FootballDataCoUkScraper:
 
     """Scrapes odds data from FootballDataCoUk."""
 
-    base_url = 'https://football-data.co.uk'
+    base_url = 'https://www.football-data.co.uk'
     notes_url = f'{base_url}/notes.txt'
 
     def __init__(
