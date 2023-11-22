@@ -10,7 +10,7 @@ def test_scrape():
     """Test scrape()."""
     raw_data_folder_path = Path('.data')
     scraper = FbrefScraper(
-        html_folder_path=Path(TEST_DATA_DIR, 'test_scrape'),
+        html_folder_path=Path(TEST_DATA_DIR, 'test_fbref_scraper'),
         raw_data_folder_path=raw_data_folder_path,
         competition='Bundesliga',
     )
@@ -21,7 +21,7 @@ def test_scrape():
         raw_data_folder_path, 'bundesliga_matches.csv'
     ).read_text()
     expected_output_file = Path(
-        TEST_DATA_DIR, 'test_scrape', 'bundesliga_matches.csv'
+        TEST_DATA_DIR, 'test_fbref_scraper', 'bundesliga_matches.csv'
     ).read_text()
     assert ',Team,' in output_file
     assert output_file == expected_output_file

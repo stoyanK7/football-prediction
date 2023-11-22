@@ -27,7 +27,7 @@ def test_crawl(mocker):
         'misc_table',
     ]
     mocker_get_html.side_effect = [
-        open(Path(TEST_DATA_DIR, 'test_crawl', file)).read()
+        open(Path(TEST_DATA_DIR, 'test_fbref_crawler', file)).read()
         for file in test_files
     ]
 
