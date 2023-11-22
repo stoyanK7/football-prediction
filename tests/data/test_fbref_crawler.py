@@ -6,7 +6,6 @@ from src.data.fbref_crawler import FbrefCrawler
 
 
 def test_crawl(mocker, tmpdir, requests_mock):
-    """Test crawl()."""
     crawler = FbrefCrawler(
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
         html_folder_path=Path(tmpdir, '.pages'),

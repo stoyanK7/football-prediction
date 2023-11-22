@@ -6,7 +6,6 @@ from src.data.fbref_scraper import FbrefScraper
 
 
 def test_scrape(tmpdir):
-    """Test scrape()."""
     raw_data_folder_path = Path(tmpdir, '.data')
     scraper = FbrefScraper(
         html_folder_path=Path(TEST_DATA_DIR, 'test_fbref_scraper'),
@@ -27,7 +26,6 @@ def test_scrape(tmpdir):
 
 
 def test_get_latest_season():
-    """Test get_latest_season()."""
     scraper = FbrefScraper(
         html_folder_path=Path(TEST_DATA_DIR, 'test_fbref_scraper'),
         raw_data_folder_path=Path(),

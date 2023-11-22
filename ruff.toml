@@ -38,4 +38,7 @@ skip-magic-trailing-comma = true
 [lint.per-file-ignores]
 # Do not lint notebooks.
 "notebooks/*" = ["ALL"]
-"tests/*" = ["ANN"]
+"tests/*" = [
+    "ANN",
+    "D103", # No need for docstrings in tests.
+]

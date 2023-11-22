@@ -6,7 +6,6 @@ from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
 
 
 def test_scrape(mocker, tmpdir, requests_mock):
-    """Test scrape()."""
     raw_data_folder_path = Path(tmpdir, '.data')
     scraper = FootballDataCoUkScraper(
         odds_href='germanym.php',
