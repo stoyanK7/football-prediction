@@ -14,7 +14,7 @@ def crawl_fbref() -> None:
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
         html_folder_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
         seasons_to_crawl=7,
-        seconds_to_sleep_between_requests=10,
+        seconds_to_sleep_between_requests=5,
         request_headers=REQUEST_HEADERS,
     )
     fbref_crawler.crawl()
@@ -24,18 +24,20 @@ def scrape_fbref() -> None:
     """Scrape FBref."""
     fbref_scraper = FbrefScraper(
         html_folder_path=Path(RAW_DATA_DIR, 'fbref_pages', 'bundesliga'),
+        raw_data_folder_path=Path(RAW_DATA_DIR),
         competition='bundesliga',
     )
     fbref_scraper.scrape()
 
 
 def scrape_football_data_co_uk() -> None:
-    """Scrape https://football-data.co.uk."""
+    """Scrape FootballDataCoUk."""
     football_data_co_uk_crawler = FootballDataCoUkScraper(
         odds_href='germanym.php',
         competition='Bundesliga 1',
-        raw_data_path=Path(RAW_DATA_DIR),
-        seconds_to_sleep=10,
+        raw_data_folder_path=Path(RAW_DATA_DIR),
+        seconds_to_sleep_between_requests=5,
+        request_headers=REQUEST_HEADERS,
     )
     football_data_co_uk_crawler.scrape()
 
