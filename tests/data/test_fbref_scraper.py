@@ -1,14 +1,13 @@
 """Tests for the FbrefScraper class."""
-import shutil
 from pathlib import Path
 
 from settings import TEST_DATA_DIR
 from src.data.fbref_scraper import FbrefScraper
 
 
-def test_scrape():
+def test_scrape(tmpdir):
     """Test scrape()."""
-    raw_data_folder_path = Path('.data')
+    raw_data_folder_path = Path(tmpdir, '.data')
     scraper = FbrefScraper(
         html_folder_path=Path(TEST_DATA_DIR, 'test_fbref_scraper'),
         raw_data_folder_path=raw_data_folder_path,
@@ -25,5 +24,3 @@ def test_scrape():
     ).read_text()
     assert ',Team,' in output_file
     assert output_file == expected_output_file
-
-    shutil.rmtree(raw_data_folder_path)

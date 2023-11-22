@@ -1,14 +1,13 @@
 """Tests for the FootballDataCoUkScraper class."""
-import shutil
 from pathlib import Path
 
 from settings import TEST_DATA_DIR
 from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
 
 
-def test_scrape(mocker):
+def test_scrape(mocker, tmpdir):
     """Test scrape()."""
-    raw_data_folder_path = Path('.data')
+    raw_data_folder_path = Path(tmpdir, '.data')
     scraper = FootballDataCoUkScraper(
         odds_href='germanym.php',
         raw_data_folder_path=raw_data_folder_path,
@@ -50,5 +49,3 @@ def test_scrape(mocker):
 
     assert mock_sleep.call_count == 4
     assert len(list(raw_data_folder_path.iterdir())) == 4
-
-    shutil.rmtree(raw_data_folder_path)

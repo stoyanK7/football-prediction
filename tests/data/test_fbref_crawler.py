@@ -1,16 +1,15 @@
 """Tests for the FbrefCrawler class."""
-import shutil
 from pathlib import Path
 
 from settings import TEST_DATA_DIR
 from src.data.fbref_crawler import FbrefCrawler
 
 
-def test_crawl(mocker):
+def test_crawl(mocker, tmpdir):
     """Test crawl()."""
     crawler = FbrefCrawler(
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
-        html_folder_path=Path('.pages'),
+        html_folder_path=Path(tmpdir, '.pages'),
     )
     mock_sleep = mocker.patch('src.data.fbref_crawler.sleep')
     mocker_get_html = mocker.patch.object(FbrefCrawler, 'get_html')
@@ -35,5 +34,3 @@ def test_crawl(mocker):
 
     assert mock_sleep.call_count == len(test_files)
     assert len(list(crawler.html_folder_path.glob('*'))) == len(test_files)
-
-    shutil.rmtree(crawler.html_folder_path)
