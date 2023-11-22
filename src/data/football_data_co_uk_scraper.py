@@ -38,6 +38,9 @@ class FootballDataCoUkScraper:
         self.odds_href = odds_href
         self.competition = competition
         self.raw_data_folder_path = raw_data_folder_path
+        if not self.raw_data_folder_path.exists():
+            self.raw_data_folder_path.mkdir(parents=True)
+            tqdm.write(f'Created folder {self.raw_data_folder_path}')
         self.seconds_to_sleep = seconds_to_sleep_between_requests
         self.request_headers = request_headers
 
@@ -49,9 +52,12 @@ class FootballDataCoUkScraper:
 
     def save_notes(self) -> None:
         """Save the notes from the website."""
+        notes_path = Path(self.raw_data_folder_path, 'notes.txt')
+        # If the notes file already exists, don't save it again.
+        if notes_path.is_file():
+            return
         notes_response = requests.get(self.notes_url)
         notes = notes_response.text
-        notes_path = Path(self.raw_data_folder_path, 'notes.txt')
         with open(notes_path, 'w') as f:
             f.write(notes)
             tqdm.write(f'Saved {notes_path}')
@@ -61,17 +67,18 @@ class FootballDataCoUkScraper:
         csv_hrefs = self.get_csv_hrefs()
 
         for href in tqdm(csv_hrefs):
+            href = href.lstrip('/')
             csv_url = f'{self.base_url}/{href}'
             # An example of href is '/mmz4281/2122/D1.csv'.
             year = href.split('/')[-2]
             csv_response = requests.get(csv_url, headers=self.request_headers)
-            csv_content = csv_response.content
+            csv_content = csv_response.text
 
             file_name = (
                 f'{self.competition.lower().replace(" ", "_")}_odds_{year}.csv'
             )
             odds_path = Path(self.raw_data_folder_path, file_name)
-            with open(odds_path, 'wb') as f:
+            with open(odds_path, 'w') as f:
                 f.write(csv_content)
                 tqdm.write(f'Saved {odds_path}')
 
@@ -83,6 +90,7 @@ class FootballDataCoUkScraper:
 
         :return: List of hrefs to the csv files containing the odds data.
         """
+        self.odds_href = self.odds_href.lstrip('/')
         odds_url = f'{self.base_url}/{self.odds_href}'
         response = requests.get(odds_url, headers=self.request_headers)
         soup = BeautifulSoup(response.text, features='html.parser')
