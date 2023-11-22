@@ -119,7 +119,7 @@ class FbrefScraper:
             team_stats_page_file.split('(')[-1]  # Hannover-96-Stats.html
             .replace('-Stats', '')  # Hannover-96.html
             .replace('-', ' ')  # Hannover 96.html
-            .rstrip('.html')  # Hannover 96
+            .replace('.html', '')  # Hannover 96
             .strip()  # Just in case.
         )
 
