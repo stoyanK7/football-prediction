@@ -40,7 +40,7 @@ class FbrefCleaner:
         matches_df = self.normalize_column_names(matches_df)
         matches_df = self.drop_equal_columns(matches_df)
         matches_df = self.drop_irrelevant_columns(matches_df)
-        matches_df = self.split_goals_columns_into_goals_and_penalties_columns(
+        matches_df = self.create_penalties_columns_from_goals_columns(
             matches_df
         )
         matches_df = self.convert_goals_columns_to_int(matches_df)
@@ -76,7 +76,8 @@ class FbrefCleaner:
         :return: DataFrame with normalized column names.
         """
         df = df.copy()
-        df.columns = df.columns.str.replace('  ', ' ')
+        df.columns = df.columns.str.strip()
+        df.columns = df.columns.str.replace(r'\s+', ' ', regex=True)
         df.columns = df.columns.str.lower()
         df.columns = df.columns.str.replace(' ', '_')
         # For example:
@@ -96,7 +97,7 @@ class FbrefCleaner:
         :return: DataFrame with equal columns dropped.
         """
         df = df.copy()
-        list_of_equal_cols = FbrefCleaner.get_list_of_equal_cols(df)
+        list_of_equal_cols = FbrefCleaner.get_list_of_equal_columns(df)
         cols_to_drop = [j for i, j in list_of_equal_cols]
         df.drop(columns=cols_to_drop, inplace=True)
         tqdm.write(f'Dropped equal columns {cols_to_drop}.')
@@ -111,12 +112,14 @@ class FbrefCleaner:
         tqdm.write(f'Dropped more equal columns {cols_to_drop}.')
 
         cols_to_drop = ['shooting_standard_gls']
-        df.drop(columns=cols_to_drop, axis=1, inplace=True)
+        # Filter is created because some columns might not exist.
+        cols_filter = df.filter(cols_to_drop)
+        df.drop(cols_filter, axis=1, inplace=True)
         tqdm.write(f'Dropped columns {cols_to_drop}.')
         return df
 
     @staticmethod
-    def get_list_of_equal_cols(df: pd.DataFrame) -> list[tuple[str, str]]:
+    def get_list_of_equal_columns(df: pd.DataFrame) -> list[tuple[str, str]]:
         """
         Get a list of equal columns. Columns are considered equal if they have
         the same values. Borrowed from:
@@ -143,7 +146,7 @@ class FbrefCleaner:
         return df
 
     @staticmethod
-    def split_goals_columns_into_goals_and_penalties_columns(
+    def create_penalties_columns_from_goals_columns(
         df: pd.DataFrame
     ) -> pd.DataFrame:
         """
@@ -216,11 +219,15 @@ class FbrefCleaner:
         :return: DataFrame with rows with lots of missing values removed.
         """
         df = df.copy()
-        amount_of_rows_to_drop = len(df[df.isnull().sum(axis=1) > threshold])
-        df.dropna(thresh=threshold, inplace=True)
+        # Threshold is the amount of missing values a row can have before it
+        # gets dropped. So we need to subtract the threshold from the total
+        # amount of columns.
+        threshold = df.shape[1] - threshold
+        initial_amount_of_rows = df.shape[0]
+        df = df.dropna(thresh=threshold)
         tqdm.write(
-            f'Dropped {amount_of_rows_to_drop} rows with more than {threshold} '
-            f'missing values.'
+            f'Dropped {initial_amount_of_rows - df.shape[0]} rows with '
+            f'{threshold} or more missing values.'
         )
         return df
 
