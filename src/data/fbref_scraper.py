@@ -153,6 +153,7 @@ class FbrefScraper:
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read_text())
         stats_df = pd.read_html(stats_file_contents, match=category_caption)[0]
+        tqdm.write(f'Scraping {stats_file}')
 
         # Rename the 'For <team name>' columns as they are unique to each team.
         stats_df.rename(columns=lambda x: re.sub('^For.+', '', x), inplace=True)
