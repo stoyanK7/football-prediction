@@ -40,6 +40,7 @@ class FbrefScraper:
 
         self.competition = competition.lower().replace(' ', '_')
         self.html_pages = self.get_html_pages()
+        self.latest_season = self.get_latest_season(self.html_pages)
 
     def scrape(self) -> None:
         """Scrape the data off the saved pages."""
@@ -142,11 +143,16 @@ class FbrefScraper:
         link_without_team = '('.join(team_stats_page_file.split('(')[:-1])
         # link_without_team is now:
         # https_((fbref.com(en(squads(60b5e41f(2018-2019
-        stats_page = [
-            page
-            for page in self.html_pages
-            if link_without_team in page and f'({category_href}(' in page
-        ][0]
+
+        # If the link_without_team doesn't end in a year-year, it means it's
+        # the current season, and we need to add the current season to the link.
+        if not re.search(r'\d{4}-\d{4}$', link_without_team):
+            link_without_team += f'({self.latest_season}'
+
+        regex = re.compile(
+            rf'^{link_without_team.replace('(', '\(')}\(matchlogs\(all_comps\({category_href}\(.+'
+        )
+        stats_page = list(filter(regex.match, self.html_pages))[0]
         # stats_page is now:
         # https_((fbref.com(en(squads(60b5e41f(2018-2019(matchlogs(all_comps(keeper(...html
         stats_file = Path(self.html_folder_path, stats_page)
@@ -187,3 +193,21 @@ class FbrefScraper:
         )
         df.to_csv(path_to_save, index=False)
         tqdm.write(f'Saved {len(df)} matches to ' f'{path_to_save}_matches.csv')
+
+    @staticmethod
+    def get_latest_season(html_pages: list[str]) -> str:
+        """
+        Get the latest season from the list of pages. This is used for the
+        current season stat pages because they don't have the year in the
+        filename.
+
+        :param html_pages: The list of HTML pages.
+        :return: The latest season.
+        """
+        return max(
+            [
+                re.search(r'\d{4}-\d{4}', page).group()
+                for page in html_pages
+                if re.search(r'\d{4}-\d{4}', page)
+            ]
+        )
