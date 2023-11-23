@@ -1,28 +1,25 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import precision_score
 
 
-def make_predictions(data, predictors):
+def make_predictions(data, predictors, cutoff_date='2023-04-01'):
     """
     Make predictions using the random forest classifier.
 
     :param data: the dataframe to use
     :param predictors: the predictor columns
+    :param cutoff_date: the date to split the data on
     :return: combined: a dataframe containing the actual and predicted values
     """
     # Split the data into train and test sets.
-    train_set = data[data['date'] < '2023-04-01']
-    test_set = data[data['date'] >= '2023-04-01']
+    train_set = data[data['date'] < cutoff_date]
+    test_set = data[data['date'] >= cutoff_date]
     print(f'Train: {len(train_set)} matches ({len(train_set) / len(data):.2%})')
     print(f'Test: {len(test_set)} matches ({len(test_set) / len(data):.2%})')
 
     # Create and fit (train) the model.
-    model = RandomForestClassifier(
-        n_estimators=50,  # number of trees in the forest
-        min_samples_split=10,  # number of samples required to split an internal node
-        random_state=1,  # seed
-    )
+    model = HistGradientBoostingClassifier()
     model.fit(train_set[predictors], train_set['target'])
 
     # Make predictions on the test dataset and calculate the precision score.
