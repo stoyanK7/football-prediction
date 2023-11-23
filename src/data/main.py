@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from data.football_data_co_uk_cleaner import FootballDataCoUkCleaner
 from src.data.fbref_cleaner import FbrefCleaner
 from src.data.fbref_processor import FbrefProcessor
 from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
@@ -68,6 +69,16 @@ def scrape_football_data_co_uk() -> None:
     football_data_co_uk_crawler.scrape()
 
 
+def clean_football_data_co_uk() -> None:
+    """Clean scraped FootballDataCoUk data."""
+    cleaner = FootballDataCoUkCleaner(
+        raw_data_folder_path=Path(RAW_DATA_DIR),
+        cleaned_data_folder_path=INTERIM_DATA_DIR,
+        competition='bundesliga',
+    )
+    cleaner.clean()
+
+
 def main() -> None:
     """Run all data collection, cleaning, and processing."""
     crawl_fbref()
@@ -76,6 +87,7 @@ def main() -> None:
     process_fbref_data()
 
     scrape_football_data_co_uk()
+    clean_football_data_co_uk()
 
 
 if __name__ == '__main__':
