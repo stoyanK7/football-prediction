@@ -92,9 +92,12 @@ class FootballDataCoUkCleaner:
         :return: Dataframe with the irrelevant columns dropped.
         """
         df = df.copy()
-        cols_to_drop = ['div']
+        cols_to_drop = ['div', 'time']
         df = df.drop(columns=cols_to_drop)
-        tqdm.write('Dropped irrelevant columns from dataframe.')
+        tqdm.write(
+            f'Dropped {len(cols_to_drop)} irrelevant columns from dataframe. '
+            f'Columns dropped: {cols_to_drop}.'
+        )
         return df
 
     @staticmethod
@@ -151,5 +154,6 @@ class FootballDataCoUkCleaner:
         """
         df = df.copy()
         df['date'] = df['date'].str.replace('/', '-')
+        df['date'] = pd.to_datetime(df['date'], format='mixed', dayfirst=True)
         tqdm.write('Normalized dates of dataframe.')
         return df
