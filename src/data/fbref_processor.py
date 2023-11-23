@@ -32,6 +32,7 @@ class FbrefProcessor:
         matches_df = self.create_rolling_average_columns(matches_df)
         matches_df = self.convert_obj_columns_to_int(matches_df)
         matches_df = self.create_target_column(matches_df)
+        matches_df = self.preserve_important_columns(matches_df)
         matches_df = self.drop_all_irrelevant_columns(matches_df)
         matches_df = self.remove_keep_prefix_from_column_names(matches_df)
 
@@ -161,6 +162,22 @@ class FbrefProcessor:
         :return: String with a prefix added.
         """
         return f'{FbrefProcessor.keep_prefix}{s}'
+
+    @staticmethod
+    def preserve_important_columns(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Preserve the important columns. These columns are needed to merge the
+        dataset with the betting odds dataset.
+
+        :param df: Dataframe containing the important columns.
+        :return: Dataframe with the important columns with a prefix added.
+        """
+        df = df.copy()
+        df[FbrefProcessor.keep('date')] = df['date']
+        df[FbrefProcessor.keep('team')] = df['team']
+        df[FbrefProcessor.keep('opponent')] = df['opponent']
+        df[FbrefProcessor.keep('venue')] = df['venue']
+        return df
 
     @staticmethod
     def drop_all_irrelevant_columns(df: pd.DataFrame) -> pd.DataFrame:
