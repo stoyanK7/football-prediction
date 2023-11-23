@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from data.fbref_cleaner import FbrefCleaner
+from src.data.fbref_cleaner import FbrefCleaner
 
 
 def test_normalize_column_names():

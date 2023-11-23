@@ -149,8 +149,9 @@ class FbrefScraper:
         if not re.search(r'\d{4}-\d{4}$', link_without_team):
             link_without_team += f'({self.latest_season}'
 
+        link_without_team = link_without_team.replace('(', '\(')
         regex = re.compile(
-            rf'^{link_without_team.replace('(', '\(')}\(matchlogs\(all_comps\({category_href}\(.+'
+            rf'^{link_without_team}\(matchlogs\(all_comps\({category_href}\(.+'
         )
         stats_page = list(filter(regex.match, self.html_pages))[0]
         # stats_page is now:
