@@ -32,4 +32,4 @@ def make_predictions(data, predictors, cutoff_date='2023-04-01'):
         dict(actual=test_set['target'], prediction=predictions),
         index=test_set.index,
     )
-    return combined
+    return precision
