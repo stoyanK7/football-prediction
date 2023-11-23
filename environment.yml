@@ -16,3 +16,4 @@ dependencies:
   - html5lib
   - requests-mock
   - matplotlib
+  - seaborn
