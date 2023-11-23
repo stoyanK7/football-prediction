@@ -2,11 +2,17 @@
 
 from pathlib import Path
 
-from data.fbref_cleaner import FbrefCleaner
+from src.data.fbref_cleaner import FbrefCleaner
+from src.data.fbref_processor import FbrefProcessor
 from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
 from src.data.fbref_crawler import FbrefCrawler
 from src.data.fbref_scraper import FbrefScraper
-from settings import RAW_DATA_DIR, REQUEST_HEADERS, INTERIM_DATA_DIR
+from settings import (
+    RAW_DATA_DIR,
+    REQUEST_HEADERS,
+    INTERIM_DATA_DIR,
+    PROCESSED_DATA_DIR,
+)
 
 
 def crawl_fbref() -> None:
@@ -41,6 +47,15 @@ def clean_fbref_data() -> None:
     fbref_cleaner.clean()
 
 
+def process_fbref_data() -> None:
+    """Process cleaned FBref data."""
+    processor = FbrefProcessor(
+        cleaned_data_file_path=Path(INTERIM_DATA_DIR, 'bundesliga_matches.csv'),
+        processed_data_folder_path=PROCESSED_DATA_DIR,
+    )
+    processor.process()
+
+
 def scrape_football_data_co_uk() -> None:
     """Scrape FootballDataCoUk."""
     football_data_co_uk_crawler = FootballDataCoUkScraper(
@@ -58,6 +73,7 @@ def main() -> None:
     crawl_fbref()
     scrape_fbref()
     clean_fbref_data()
+    process_fbref_data()
 
     scrape_football_data_co_uk()
 

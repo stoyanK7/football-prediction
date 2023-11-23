@@ -3,8 +3,6 @@ from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
-from settings import INTERIM_DATA_DIR, PROCESSED_DATA_DIR
-
 
 class FbrefProcessor:
 
@@ -191,11 +189,3 @@ class FbrefProcessor:
             f'^{FbrefProcessor.keep_prefix}', '', regex=True
         )
         return df
-
-
-if __name__ == '__main__':
-    processor = FbrefProcessor(
-        cleaned_data_file_path=Path(INTERIM_DATA_DIR, 'bundesliga_matches.csv'),
-        processed_data_folder_path=PROCESSED_DATA_DIR,
-    )
-    processor.process()
