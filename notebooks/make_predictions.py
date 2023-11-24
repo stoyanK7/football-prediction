@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score
 
 
@@ -19,7 +19,7 @@ def make_predictions(data, predictors, cutoff_date='2023-04-01'):
     print(f'Test: {len(test_set)} matches ({len(test_set) / len(data):.2%})')
 
     # Create and fit (train) the model.
-    model = HistGradientBoostingClassifier()
+    model = RandomForestClassifier()
     model.fit(train_set[predictors], train_set['target'])
 
     # Make predictions on the test dataset and calculate the precision score.
