@@ -8,9 +8,11 @@ class FbrefProcessor:
 
     """Processes data cleaned from :class:`FbrefCleaner`."""
 
-    # At the end of the processing, we want to drop all columns that don't
-    # start with this prefix.
-    keep_prefix = 'keep_'
+    # This prefix is used to mark columns that are important for the model.
+    feat_perfix = 'feat_'
+    # We also want to keep some columns that are important for merging the
+    # dataset with the betting odds dataset.
+    info_prefix = 'info_'
 
     def __init__(
         self, cleaned_data_file_path: Path, processed_data_folder_path: Path
@@ -30,11 +32,11 @@ class FbrefProcessor:
         matches_df = pd.read_csv(self.cleaned_data_file_path)
 
         matches_df = self.create_rolling_average_columns(matches_df)
+        matches_df = self.fill_na_values_with_mean(matches_df)
         matches_df = self.convert_obj_columns_to_int(matches_df)
         matches_df = self.create_target_column(matches_df)
-        matches_df = self.preserve_important_columns(matches_df)
+        matches_df = self.mark_information_columns(matches_df)
         matches_df = self.drop_all_irrelevant_columns(matches_df)
-        matches_df = self.remove_keep_prefix_from_column_names(matches_df)
 
         save_path = Path(
             self.processed_data_folder_path, self.cleaned_data_file_path.name
@@ -55,7 +57,7 @@ class FbrefProcessor:
         :return: Dataframe with the target column.
         """
         df = df.copy()
-        df[FbrefProcessor.keep('target')] = (df['result'] == 'W').astype('int')
+        df['target'] = (df['result'] == 'W').astype('int')
         tqdm.write('Created target column.')
         return df
 
@@ -69,20 +71,20 @@ class FbrefProcessor:
         """
         df = df.copy()
         df['date'] = pd.to_datetime(df['date'])
-        df[FbrefProcessor.keep('team_code')] = (
+        df[f'{FbrefProcessor.feat_perfix}team_code'] = (
             df['team'].astype('category').cat.codes
         )
-        df[FbrefProcessor.keep('opponent_code')] = (
+        df[f'{FbrefProcessor.feat_perfix}opponent_code'] = (
             df['opponent'].astype('category').cat.codes
         )
-        df[FbrefProcessor.keep('venue_code')] = (
+        df[f'{FbrefProcessor.feat_perfix}venue_code'] = (
             df['venue'].astype('category').cat.codes
         )
-        df[FbrefProcessor.keep('hour')] = (
+        df[f'{FbrefProcessor.feat_perfix}hour'] = (
             df['time'].str.replace(':.+', '', regex=True).astype('int')
         )
-        df[FbrefProcessor.keep('day_code')] = df['date'].dt.dayofweek
-        df[FbrefProcessor.keep('month_code')] = df['date'].dt.month
+        df[f'{FbrefProcessor.feat_perfix}day_code'] = df['date'].dt.dayofweek
+        df[f'{FbrefProcessor.feat_perfix}month_code'] = df['date'].dt.month
         tqdm.write('Converted object columns to int columns.')
         return df
 
@@ -100,7 +102,8 @@ class FbrefProcessor:
         numeric_columns = df.select_dtypes(include='number').columns.tolist()
         # Create names for the new rolling average columns.
         rolling_avg_columns = [
-            FbrefProcessor.keep(f'{col}_rolling_avg') for col in numeric_columns
+            f'{FbrefProcessor.feat_perfix}{col}_rolling_avg'
+            for col in numeric_columns
         ]
 
         # Group by team so that we can compute rolling averages for each team.
@@ -154,17 +157,21 @@ class FbrefProcessor:
         return df
 
     @staticmethod
-    def keep(s: str) -> str:
+    def fill_na_values_with_mean(df: pd.DataFrame) -> pd.DataFrame:
         """
-        Add a prefix to a string to mark it as a feature column.
+        Fill NaN values with the mean of the column.
 
-        :param s: String to add a prefix to.
-        :return: String with a prefix added.
+        :param df: Dataframe containing NaN values.
+        :return: Dataframe with NaN values filled with mean.
         """
-        return f'{FbrefProcessor.keep_prefix}{s}'
+        df = df.copy()
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        df.fillna(df[numeric_columns].mean(), inplace=True)
+        tqdm.write('Filled NaN values with mean.')
+        return df
 
     @staticmethod
-    def preserve_important_columns(df: pd.DataFrame) -> pd.DataFrame:
+    def mark_information_columns(df: pd.DataFrame) -> pd.DataFrame:
         """
         Preserve the important columns. These columns are needed to merge the
         dataset with the betting odds dataset.
@@ -173,36 +180,25 @@ class FbrefProcessor:
         :return: Dataframe with the important columns with a prefix added.
         """
         df = df.copy()
-        df[FbrefProcessor.keep('date')] = df['date']
-        df[FbrefProcessor.keep('team')] = df['team']
-        df[FbrefProcessor.keep('opponent')] = df['opponent']
-        df[FbrefProcessor.keep('venue')] = df['venue']
+        info_columns = ['date', 'team', 'opponent', 'venue']
+        for col in info_columns:
+            df[f'{FbrefProcessor.info_prefix}{col}'] = df[col]
+        tqdm.write('Marked information columns.')
         return df
 
     @staticmethod
     def drop_all_irrelevant_columns(df: pd.DataFrame) -> pd.DataFrame:
         """
-        Drop all columns that don't start with the prefix.
+        Drop all columns that don't start with either prefix defined in this
+        class. Also doesn't drop the target column.
 
         :param df: Dataframe containing columns to drop.
         :return: Dataframe with columns dropped.
         """
         df = df.copy()
-        # Drop all columns that don't start with the prefix.
-        df = df.loc[:, df.columns.str.startswith(FbrefProcessor.keep_prefix)]
-        return df
-
-    @staticmethod
-    def remove_keep_prefix_from_column_names(df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Remove the prefix from the column names.
-
-        :param df: Dataframe containing columns to remove the prefix from.
-        :return: Dataframe with the prefix removed from the column names.
-        """
-        df = df.copy()
-        # Remove the prefix from the column names.
-        df.columns = df.columns.str.replace(
-            f'^{FbrefProcessor.keep_prefix}', '', regex=True
+        df = df.filter(
+            regex=f'^({FbrefProcessor.feat_perfix}|'
+            f'{FbrefProcessor.info_prefix}|target)'
         )
+        tqdm.write('Dropped all irrelevant columns.')
         return df
