@@ -4,7 +4,10 @@ from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+
+from src.log import get_logger
+
+logger = get_logger(__name__)
 
 
 class FootballDataCoUkScraper:
@@ -40,7 +43,7 @@ class FootballDataCoUkScraper:
         self.raw_data_folder_path = raw_data_folder_path
         if not self.raw_data_folder_path.exists():
             self.raw_data_folder_path.mkdir(parents=True)
-            tqdm.write(f'Created folder {self.raw_data_folder_path}')
+            logger.info(f'Created folder {self.raw_data_folder_path}')
         self.seconds_to_sleep = seconds_to_sleep_between_requests
         self.request_headers = request_headers
 
@@ -60,13 +63,13 @@ class FootballDataCoUkScraper:
         notes = notes_response.text
         with open(notes_path, 'w') as f:
             f.write(notes)
-            tqdm.write(f'Saved {notes_path}')
+            logger.info(f'Saved {notes_path}')
 
     def save_odds(self) -> None:
         """Save the odds data from the provided page."""
         csv_hrefs = self.get_csv_hrefs()
 
-        for href in tqdm(csv_hrefs):
+        for href in csv_hrefs:
             href = href.lstrip('/')
             csv_url = f'{self.base_url}/{href}'
             # An example of href is '/mmz4281/2122/D1.csv'.
@@ -80,7 +83,7 @@ class FootballDataCoUkScraper:
             odds_path = Path(self.raw_data_folder_path, file_name)
             with open(odds_path, 'w') as f:
                 f.write(csv_content)
-                tqdm.write(f'Saved {odds_path}')
+                logger.info(f'Saved {odds_path}')
 
             sleep(self.seconds_to_sleep)
 

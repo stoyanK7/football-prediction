@@ -1,7 +1,10 @@
 """Contains the class that is responsible for processing FBref data."""
 from pathlib import Path
 import pandas as pd
-from tqdm import tqdm
+
+from src.log import get_logger
+
+logger = get_logger(__name__)
 
 
 class FbrefProcessor:
@@ -42,7 +45,7 @@ class FbrefProcessor:
             self.processed_data_folder_path, self.cleaned_data_file_path.name
         )
         matches_df.to_csv(save_path, index=False)
-        tqdm.write(
+        logger.info(
             f'Saved {matches_df.shape[0]} rows and '
             f'{matches_df.shape[1]} cols of data to {save_path}.'
         )
@@ -58,7 +61,7 @@ class FbrefProcessor:
         """
         df = df.copy()
         df['target'] = (df['result'] == 'W').astype('int')
-        tqdm.write('Created target column.')
+        logger.info('Created target column.')
         return df
 
     @staticmethod
@@ -85,7 +88,7 @@ class FbrefProcessor:
         )
         df[f'{FbrefProcessor.feat_perfix}day_code'] = df['date'].dt.dayofweek
         df[f'{FbrefProcessor.feat_perfix}month_code'] = df['date'].dt.month
-        tqdm.write('Converted object columns to int columns.')
+        logger.info('Converted object columns to int columns.')
         return df
 
     @staticmethod
@@ -119,7 +122,7 @@ class FbrefProcessor:
         df = df.droplevel(0)
         # Fix the index because there might be duplicate indices.
         df.reset_index(drop=True, inplace=True)
-        tqdm.write('Created rolling average columns.')
+        logger.info('Created rolling average columns.')
 
         return df
 
@@ -167,7 +170,7 @@ class FbrefProcessor:
         df = df.copy()
         numeric_columns = df.select_dtypes(include=['number']).columns
         df.fillna(df[numeric_columns].mean(), inplace=True)
-        tqdm.write('Filled NaN values with mean.')
+        logger.info('Filled NaN values with mean.')
         return df
 
     @staticmethod
@@ -183,7 +186,7 @@ class FbrefProcessor:
         info_columns = ['date', 'team', 'opponent', 'venue']
         for col in info_columns:
             df[f'{FbrefProcessor.info_prefix}{col}'] = df[col]
-        tqdm.write('Marked information columns.')
+        logger.info('Marked information columns.')
         return df
 
     @staticmethod
@@ -200,5 +203,5 @@ class FbrefProcessor:
             regex=f'^({FbrefProcessor.feat_perfix}|'
             f'{FbrefProcessor.info_prefix}|target)'
         )
-        tqdm.write('Dropped all irrelevant columns.')
+        logger.info('Dropped all irrelevant columns.')
         return df

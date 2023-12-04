@@ -5,9 +5,11 @@ from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 
+from src.log import get_logger
 from src.data.fbref import categories
+
+logger = get_logger(__name__)
 
 
 class FbrefCrawler:
@@ -51,7 +53,7 @@ class FbrefCrawler:
         self.html_folder_path = html_folder_path
         if not self.html_folder_path.exists():
             self.html_folder_path.mkdir(parents=True)
-            tqdm.write(f'Created folder {self.html_folder_path}')
+            logger.info(f'Created folder {self.html_folder_path}')
 
         self.seasons_to_crawl = seasons_to_crawl
         self.seconds_to_sleep = seconds_to_sleep_between_requests
@@ -65,7 +67,7 @@ class FbrefCrawler:
         """
         current_season_stats_href = self.competition_stats_href
 
-        for _ in tqdm(range(self.seasons_to_crawl), desc='Seasons crawled'):
+        for _ in range(self.seasons_to_crawl):
             stats_page_html = self.save_page(current_season_stats_href)
             stats_page_soup = BeautifulSoup(
                 stats_page_html, features='html.parser'
@@ -159,7 +161,7 @@ class FbrefCrawler:
         file_path = Path(self.html_folder_path, file_name)
         with open(file_path, 'w') as f:
             f.write(text)
-            tqdm.write(f'Saved {file_path}')
+            logger.info(f'Saved {file_path}')
 
     def get_html(self, url: str) -> str:
         """
@@ -169,7 +171,7 @@ class FbrefCrawler:
         :return: The HTML page as a string.
         """
         html = requests.get(url, headers=self.request_headers)
-        tqdm.write(f'Made a request to {url}')
+        logger.info(f'Made a request to {url}')
         return html.text
 
     def build_url(self, href: str) -> str:

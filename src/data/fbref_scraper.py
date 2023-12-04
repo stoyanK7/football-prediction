@@ -4,10 +4,13 @@ from io import StringIO
 from os import listdir
 from pathlib import Path
 
-from tqdm import tqdm
 import pandas as pd
 
+from src.log import get_logger
 from src.data.fbref import categories
+
+
+logger = get_logger(__name__)
 
 
 class FbrefScraper:
@@ -36,7 +39,7 @@ class FbrefScraper:
         self.raw_data_folder_path = raw_data_folder_path
         if not self.raw_data_folder_path.exists():
             self.raw_data_folder_path.mkdir(parents=True)
-            tqdm.write(f'Created folder {self.raw_data_folder_path}')
+            logger.info(f'Created folder {self.raw_data_folder_path}')
 
         self.competition = competition.lower().replace(' ', '_')
         self.html_pages = self.get_html_pages()
@@ -48,7 +51,7 @@ class FbrefScraper:
 
         competition_matches_dfs = []
 
-        for team_stats_page_file in tqdm(teams_stats_pages_files):
+        for team_stats_page_file in teams_stats_pages_files:
             team_df = self.get_team_matches_df(team_stats_page_file)
             competition_matches_dfs.append(team_df)
 
@@ -61,7 +64,7 @@ class FbrefScraper:
         :return: A list of files.
         """
         pages = listdir(self.html_folder_path)
-        tqdm.write(f'Found {len(pages)} pages')
+        logger.info(f'Found {len(pages)} pages')
         return pages
 
     def get_teams_stats_pages_files(self) -> list[str]:
@@ -87,7 +90,7 @@ class FbrefScraper:
         :param team_stats_page_file: The name of the team stats page file.
         :return: A dataframe containing the matches and categories of stats.
         """
-        tqdm.write(f'Scraping {team_stats_page_file}')
+        logger.info(f'Scraping {team_stats_page_file}')
         team_name = self.get_team_name(team_stats_page_file)
         team_stats_file_path = Path(self.html_folder_path, team_stats_page_file)
         # Wrap in StringIO to prevent warnings.
@@ -160,7 +163,7 @@ class FbrefScraper:
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read_text())
         stats_df = pd.read_html(stats_file_contents, match=category_caption)[0]
-        tqdm.write(f'Scraping {stats_file}')
+        logger.info(f'Scraping {stats_file}')
 
         # Rename the 'For <team name>' columns as they are unique to each team.
         stats_df.rename(columns=lambda x: re.sub('^For.+', '', x), inplace=True)
@@ -193,7 +196,9 @@ class FbrefScraper:
             self.raw_data_folder_path, f'{self.competition}_matches.csv'
         )
         df.to_csv(path_to_save, index=False)
-        tqdm.write(f'Saved {len(df)} matches to ' f'{path_to_save}_matches.csv')
+        logger.info(
+            f'Saved {len(df)} matches to ' f'{path_to_save}_matches.csv'
+        )
 
     @staticmethod
     def get_latest_season(html_pages: list[str]) -> str:

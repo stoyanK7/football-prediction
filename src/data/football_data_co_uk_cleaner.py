@@ -5,7 +5,10 @@ from FootballDataCoUk.
 from pathlib import Path
 
 import pandas as pd
-from tqdm import tqdm
+
+from src.log import get_logger
+
+logger = get_logger(__name__)
 
 
 class FootballDataCoUkCleaner:
@@ -49,7 +52,7 @@ class FootballDataCoUkCleaner:
             self.cleaned_data_folder_path, f'{self.competition}_odds.csv'
         )
         odds_df.to_csv(save_path, index=False)
-        tqdm.write(
+        logger.info(
             f'Saved {odds_df.shape[0]} rows and {odds_df.shape[1]} cols '
             f'of data to {save_path}.'
         )
@@ -80,7 +83,7 @@ class FootballDataCoUkCleaner:
         """
         df = df.copy()
         df.columns = df.columns.str.lower()
-        tqdm.write('Normalized column names of dataframe.')
+        logger.info('Normalized column names of dataframe.')
         return df
 
     @staticmethod
@@ -94,7 +97,7 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         cols_to_drop = ['div', 'time']
         df = df.drop(columns=cols_to_drop)
-        tqdm.write(
+        logger.info(
             f'Dropped {len(cols_to_drop)} irrelevant columns from dataframe. '
             f'Columns dropped: {cols_to_drop}.'
         )
@@ -111,7 +114,7 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         mapping = {'hometeam': 'team', 'awayteam': 'opponent'}
         df = df.rename(columns=mapping)
-        tqdm.write('Renamed columns of dataframe.')
+        logger.info('Renamed columns of dataframe.')
         return df
 
     @staticmethod
@@ -140,7 +143,7 @@ class FootballDataCoUkCleaner:
         }
         df['team'] = df['team'].map(mapping).fillna(df['team'])
         df['opponent'] = df['opponent'].map(mapping).fillna(df['opponent'])
-        tqdm.write('Normalized team names of dataframe.')
+        logger.info('Normalized team names of dataframe.')
         return df
 
     @staticmethod
@@ -155,5 +158,5 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         df['date'] = df['date'].str.replace('/', '-')
         df['date'] = pd.to_datetime(df['date'], format='mixed', dayfirst=True)
-        tqdm.write('Normalized dates of dataframe.')
+        logger.info('Normalized dates of dataframe.')
         return df
