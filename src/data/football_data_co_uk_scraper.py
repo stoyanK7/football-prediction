@@ -7,12 +7,13 @@ from bs4 import BeautifulSoup
 
 from src.log import get_logger
 
-logger = get_logger(__name__)
-
 
 class FootballDataCoUkScraper:
 
     """Scrapes odds data from FootballDataCoUk."""
+
+    logger_name = 'football_data_co_uk_scraper'
+    logger, logfile = get_logger(logger_name)
 
     base_url = 'https://www.football-data.co.uk'
     notes_url = f'{base_url}/notes.txt'
@@ -43,7 +44,9 @@ class FootballDataCoUkScraper:
         self.raw_data_folder_path = raw_data_folder_path
         if not self.raw_data_folder_path.exists():
             self.raw_data_folder_path.mkdir(parents=True)
-            logger.info(f'Created folder {self.raw_data_folder_path}')
+            FootballDataCoUkScraper.logger.info(
+                f'Created folder {self.raw_data_folder_path}'
+            )
         self.seconds_to_sleep = seconds_to_sleep_between_requests
         self.request_headers = request_headers
 
@@ -52,6 +55,7 @@ class FootballDataCoUkScraper:
         self.save_notes()
         sleep(self.seconds_to_sleep)
         self.save_odds()
+        FootballDataCoUkScraper.logger.info('DONE')
 
     def save_notes(self) -> None:
         """Save the notes from the website."""
@@ -63,7 +67,7 @@ class FootballDataCoUkScraper:
         notes = notes_response.text
         with open(notes_path, 'w') as f:
             f.write(notes)
-            logger.info(f'Saved {notes_path}')
+            FootballDataCoUkScraper.logger.info(f'Saved {notes_path}')
 
     def save_odds(self) -> None:
         """Save the odds data from the provided page."""
@@ -83,7 +87,7 @@ class FootballDataCoUkScraper:
             odds_path = Path(self.raw_data_folder_path, file_name)
             with open(odds_path, 'w') as f:
                 f.write(csv_content)
-                logger.info(f'Saved {odds_path}')
+                FootballDataCoUkScraper.logger.info(f'Saved {odds_path}')
 
             sleep(self.seconds_to_sleep)
 

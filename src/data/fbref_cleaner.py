@@ -7,12 +7,13 @@ from pathlib import Path
 import pandas as pd
 from src.log import get_logger
 
-logger = get_logger(__name__)
-
 
 class FbrefCleaner:
 
     """Cleans data scraped from :class:`FbrefScraper`."""
+
+    logger_name = 'fbref_cleaner'
+    logger, logfile = get_logger(logger_name)
 
     def __init__(
         self,
@@ -62,10 +63,11 @@ class FbrefCleaner:
             self.cleaned_data_folder_path, self.raw_data_file_path.name
         )
         matches_df.to_csv(save_path, index=False)
-        logger.info(
+        FbrefCleaner.logger.info(
             f'Saved {matches_df.shape[0]} rows and {matches_df.shape[1]} cols '
             f'of data to {save_path}.'
         )
+        FbrefCleaner.logger.info('DONE')
 
     @staticmethod
     def normalize_column_names(df: pd.DataFrame) -> pd.DataFrame:
@@ -87,7 +89,7 @@ class FbrefCleaner:
         df.columns = df.columns.str.replace(
             r'(.*)_unnamed:_\d+_level_0_(.*)', r'\1_\2', regex=True
         )  # possession_match_report
-        logger.info('Normalized column names.')
+        FbrefCleaner.logger.info('Normalized column names.')
         return df
 
     @staticmethod
@@ -102,7 +104,7 @@ class FbrefCleaner:
         list_of_equal_cols = FbrefCleaner.get_list_of_equal_columns(df)
         cols_to_drop = [j for i, j in list_of_equal_cols]
         df.drop(columns=cols_to_drop, inplace=True)
-        logger.info(f'Dropped equal columns {cols_to_drop}.')
+        FbrefCleaner.logger.info(f'Dropped equal columns {cols_to_drop}.')
 
         # Unfortunately, this doesn't catch all equal columns, so we have to
         # manually add some more.
@@ -111,13 +113,13 @@ class FbrefCleaner:
         )
         cols_to_drop = df.filter(regex=regex).columns
         df.drop(cols_to_drop, axis=1, inplace=True)
-        logger.info(f'Dropped more equal columns {cols_to_drop}.')
+        FbrefCleaner.logger.info(f'Dropped more equal columns {cols_to_drop}.')
 
         cols_to_drop = ['shooting_standard_gls']
         # Filter is created because some columns might not exist.
         cols_filter = df.filter(cols_to_drop)
         df.drop(cols_filter, axis=1, inplace=True)
-        logger.info(f'Dropped columns {cols_to_drop}.')
+        FbrefCleaner.logger.info(f'Dropped columns {cols_to_drop}.')
         return df
 
     @staticmethod
@@ -144,7 +146,7 @@ class FbrefCleaner:
         regex = '.*(notes|match_report).*'
         cols_to_drop = df.filter(regex=regex).columns
         df.drop(cols_to_drop, axis=1, inplace=True)
-        logger.info(f'Dropped irrelevant columns {cols_to_drop}.')
+        FbrefCleaner.logger.info(f'Dropped irrelevant columns {cols_to_drop}.')
         return df
 
     @staticmethod
@@ -168,7 +170,9 @@ class FbrefCleaner:
         # Fill NaNs with -1s. 0 would be a valid value, so we can't use that.
         df['pen_gf'].fillna(-1, inplace=True)
         df['pen_ga'].fillna(-1, inplace=True)
-        logger.info('Split goals columns into goals and penalties columns.')
+        FbrefCleaner.logger.info(
+            'Split goals columns into goals and penalties columns.'
+        )
         return df
 
     @staticmethod
@@ -188,7 +192,9 @@ class FbrefCleaner:
             df[col] = df[col].str.split('.').str[0]
             df[col] = df[col].astype('int')
 
-        logger.info(f'Converted goals columns({goals_cols}) to int.')
+        FbrefCleaner.logger.info(
+            f'Converted goals columns({goals_cols}) to int.'
+        )
         return df
 
     @staticmethod
@@ -204,7 +210,7 @@ class FbrefCleaner:
         """
         df = df.copy()
         df = df[df['comp'] == competition]
-        logger.info(f'Narrowed down to {competition} competition.')
+        FbrefCleaner.logger.info(f'Narrowed down to {competition} competition.')
         return df
 
     @staticmethod
@@ -227,7 +233,7 @@ class FbrefCleaner:
         threshold = df.shape[1] - threshold
         initial_amount_of_rows = df.shape[0]
         df = df.dropna(thresh=threshold)
-        logger.info(
+        FbrefCleaner.logger.info(
             f'Dropped {initial_amount_of_rows - df.shape[0]} rows with '
             f'{threshold} or more missing values.'
         )
@@ -269,5 +275,5 @@ class FbrefCleaner:
             )
             raise ValueError(msg)
 
-        logger.info('Normalized team names.')
+        FbrefCleaner.logger.info('Normalized team names.')
         return df

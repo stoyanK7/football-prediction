@@ -8,12 +8,13 @@ import pandas as pd
 
 from src.log import get_logger
 
-logger = get_logger(__name__)
-
 
 class FootballDataCoUkCleaner:
 
     """Cleans data scraped from :class:`FootballDataCoUkScraper`."""
+
+    logger_name = 'football_data_co_uk_cleaner'
+    logger, logfile = get_logger(logger_name)
 
     def __init__(
         self,
@@ -52,10 +53,11 @@ class FootballDataCoUkCleaner:
             self.cleaned_data_folder_path, f'{self.competition}_odds.csv'
         )
         odds_df.to_csv(save_path, index=False)
-        logger.info(
+        FootballDataCoUkCleaner.logger.info(
             f'Saved {odds_df.shape[0]} rows and {odds_df.shape[1]} cols '
             f'of data to {save_path}.'
         )
+        FootballDataCoUkCleaner.logger.info('DONE')
 
     def get_odds_df(self) -> pd.DataFrame:
         """
@@ -83,7 +85,9 @@ class FootballDataCoUkCleaner:
         """
         df = df.copy()
         df.columns = df.columns.str.lower()
-        logger.info('Normalized column names of dataframe.')
+        FootballDataCoUkCleaner.logger.info(
+            'Normalized column names of dataframe.'
+        )
         return df
 
     @staticmethod
@@ -97,7 +101,7 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         cols_to_drop = ['div', 'time']
         df = df.drop(columns=cols_to_drop)
-        logger.info(
+        FootballDataCoUkCleaner.logger.info(
             f'Dropped {len(cols_to_drop)} irrelevant columns from dataframe. '
             f'Columns dropped: {cols_to_drop}.'
         )
@@ -114,7 +118,7 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         mapping = {'hometeam': 'team', 'awayteam': 'opponent'}
         df = df.rename(columns=mapping)
-        logger.info('Renamed columns of dataframe.')
+        FootballDataCoUkCleaner.logger.info('Renamed columns of dataframe.')
         return df
 
     @staticmethod
@@ -143,7 +147,9 @@ class FootballDataCoUkCleaner:
         }
         df['team'] = df['team'].map(mapping).fillna(df['team'])
         df['opponent'] = df['opponent'].map(mapping).fillna(df['opponent'])
-        logger.info('Normalized team names of dataframe.')
+        FootballDataCoUkCleaner.logger.info(
+            'Normalized team names of dataframe.'
+        )
         return df
 
     @staticmethod
@@ -158,5 +164,5 @@ class FootballDataCoUkCleaner:
         df = df.copy()
         df['date'] = df['date'].str.replace('/', '-')
         df['date'] = pd.to_datetime(df['date'], format='mixed', dayfirst=True)
-        logger.info('Normalized dates of dataframe.')
+        FootballDataCoUkCleaner.logger.info('Normalized dates of dataframe.')
         return df
