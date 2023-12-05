@@ -9,7 +9,7 @@ class FbrefProcessor:
 
     """Processes data cleaned from :class:`FbrefCleaner`."""
 
-    logger_name = 'fbref_processor'
+    logger_name = 'processing'
     logger, logfile = get_logger(logger_name)
 
     # This prefix is used to mark columns that are important for the model.

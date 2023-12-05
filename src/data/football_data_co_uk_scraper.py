@@ -12,7 +12,7 @@ class FootballDataCoUkScraper:
 
     """Scrapes odds data from FootballDataCoUk."""
 
-    logger_name = 'football_data_co_uk_scraper'
+    logger_name = 'scraping'
     logger, logfile = get_logger(logger_name)
 
     base_url = 'https://www.football-data.co.uk'

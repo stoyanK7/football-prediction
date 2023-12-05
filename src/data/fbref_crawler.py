@@ -17,7 +17,7 @@ class FbrefCrawler:
     can be scraped later.
     """
 
-    logger_name = 'fbref_crawler'
+    logger_name = 'crawling'
     logger, logfile = get_logger(logger_name)
 
     # The base URL of the website.

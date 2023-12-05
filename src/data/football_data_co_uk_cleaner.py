@@ -13,7 +13,7 @@ class FootballDataCoUkCleaner:
 
     """Cleans data scraped from :class:`FootballDataCoUkScraper`."""
 
-    logger_name = 'football_data_co_uk_cleaner'
+    logger_name = 'cleaning'
     logger, logfile = get_logger(logger_name)
 
     def __init__(

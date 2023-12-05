@@ -17,7 +17,7 @@ class FbrefScraper:
     :class:`FbrefCrawler`.
     """
 
-    logger_name = 'fbref_scraper'
+    logger_name = 'scraping'
     logger, logfile = get_logger(logger_name)
 
     def __init__(

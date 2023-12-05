@@ -12,7 +12,7 @@ class FbrefCleaner:
 
     """Cleans data scraped from :class:`FbrefScraper`."""
 
-    logger_name = 'fbref_cleaner'
+    logger_name = 'cleaning'
     logger, logfile = get_logger(logger_name)
 
     def __init__(
