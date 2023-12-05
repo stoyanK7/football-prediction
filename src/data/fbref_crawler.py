@@ -85,6 +85,34 @@ class FbrefCrawler:
 
         FbrefCrawler.logger.info('DONE')
 
+    def recrawl_errored_pages(self) -> None:
+        """
+        Recrawl all pages that were not crawled successfully. This is useful
+        if the crawler was interrupted and some pages were not crawled.
+        """
+        for file_path in self.html_folder_path.glob('**/*.html'):
+            FbrefCrawler.logger.info(f'Checking {file_path}')
+            with open(file_path, 'r') as f:
+                html = f.read()
+            soup = BeautifulSoup(html, features='html.parser')
+            if soup.select_one('h1:-soup-contains("403 error")'):
+                fixed_page = False
+                while not fixed_page:
+                    FbrefCrawler.logger.info(f'Recrawling {file_path}')
+                    href = (
+                        file_path.name.replace('(', '/')
+                        .replace('_', ':')
+                        .replace('all:comps', 'all_comps')
+                        .replace('.html', '')
+                        .replace(FbrefCrawler.base_url, '')
+                    )
+                    html = self.save_page(href)
+                    soup = BeautifulSoup(html, features='html.parser')
+                    if not soup.select_one('h1:-soup-contains("403 error")'):
+                        fixed_page = True
+
+        FbrefCrawler.logger.info('DONE')
+
     def save_page(self, href: str) -> str:
         """
         Save the page from the given href. Build the url from the href and
