@@ -16,6 +16,12 @@ conda env create -f environment.yml
 conda activate football_prediction
 ```
 
+## Run API
+
+```sh
+uvicorn src.api.main:app --port 3000 --reload
+```
+
 ## Run Tests
 
 ```sh
