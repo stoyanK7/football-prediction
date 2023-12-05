@@ -25,62 +25,14 @@ function Action({ name, src, href }) {
     );
 }
 
-import { useState } from 'react';
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
-
 export default function ActionsMenu() {
-    const [isNavbarOpen, setIsNavbarOpen] = useState(true);
-
-    const toggleNavbar = () => {
-        setIsNavbarOpen(!isNavbarOpen);
-    };
-
     return (
-        <div>
-            <nav
-                className={`flex justify-center border-b-2 border-gray-300 p-4 ${
-                    isNavbarOpen ? '' : 'hidden'
-                }`}
-            >
-                <Action
-                    name="Crawl"
-                    src="/images/web-crawler.png"
-                    href="/crawl"
-                />
-                <Action
-                    name="Scrape"
-                    src="/images/scraper.png"
-                    href="/scrape"
-                />
-                <Action name="Clean" src="/images/clean.png" href="/clean" />
-                <Action
-                    name="Prepare"
-                    src="/images/prepare.png"
-                    href="/prepare"
-                />
-                <Action name="Train" src="/images/train.png" href="/train" />
-            </nav>
-            {/* <div className="mt-2 flex justify-center">
-                {isNavbarOpen ? (
-                    <div
-                        class="flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-gray-400 p-2 text-white"
-                        onClick={toggleNavbar}
-                    >
-                        <FaArrowUp />
-                        <FaArrowUp />
-                        <FaArrowUp />
-                    </div>
-                ) : (
-                    <div
-                        class="flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-gray-400 p-2 text-white"
-                        onClick={toggleNavbar}
-                    >
-                        <FaArrowDown />
-                        <FaArrowDown />
-                        <FaArrowDown />
-                    </div>
-                )}
-            </div> */}
-        </div>
+        <nav className="flex justify-center border-b-2 border-gray-300 p-4">
+            <Action name="Crawl" src="/images/web-crawler.png" href="/crawl" />
+            <Action name="Scrape" src="/images/scraper.png" href="/scrape" />
+            <Action name="Clean" src="/images/clean.png" href="/clean" />
+            <Action name="Prepare" src="/images/prepare.png" href="/prepare" />
+            <Action name="Train" src="/images/train.png" href="/train" />
+        </nav>
     );
 }
