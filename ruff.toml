@@ -42,3 +42,6 @@ skip-magic-trailing-comma = true
     "ANN",
     "D103", # No need for docstrings in tests.
 ]
+"**/api/**/*" = [
+    "ANN201", # Missing return type annotation for public function
+]
