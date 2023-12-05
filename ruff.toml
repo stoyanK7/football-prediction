@@ -42,6 +42,7 @@ skip-magic-trailing-comma = true
     "ANN",
     "D103", # No need for docstrings in tests.
 ]
-"**/api/**/*" = [
+"**/cli/**/*" = [
     "ANN201", # Missing return type annotation for public function
+    "D103", # No need for docstrings, help is enough.
 ]

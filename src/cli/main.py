@@ -1,3 +1,4 @@
+"""Command line interface for the project."""
 from pathlib import Path
 from typing import Annotated
 
