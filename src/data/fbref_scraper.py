@@ -109,7 +109,9 @@ class FbrefScraper:
             category_df = self.get_category_dataframe(
                 team_stats_page_file, category_href, category_caption
             )
-            team_df = team_df.merge(category_df, on=['Date', 'Time'])
+            team_df = team_df.merge(
+                category_df, on=['Date', 'Time'], how='outer'
+            )
         return team_df
 
     @staticmethod
@@ -155,7 +157,7 @@ class FbrefScraper:
         if not re.search(r'\d{4}-\d{4}$', link_without_team):
             link_without_team += f'({self.latest_season}'
 
-        link_without_team = link_without_team.replace('(', '\(')
+        link_without_team = link_without_team.replace('(', r'\(')
         regex = re.compile(
             rf'^{link_without_team}\(matchlogs\(all_comps\({category_href}\(.+'
         )

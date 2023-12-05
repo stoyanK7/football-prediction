@@ -76,7 +76,7 @@ def recrawl(
             show_default=True,
             prompt_required=True,
         ),
-    ] = 'Bundesliga'
+    ] = 'Bundesliga',
 ):
     fbref_crawler = FbrefCrawler(
         competition_stats_href='',
