@@ -165,8 +165,8 @@ class FbrefScraper:
         stats_file = Path(self.html_folder_path, stats_page)
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read_text())
-        stats_df = pd.read_html(stats_file_contents, match=category_caption)[0]
         FbrefScraper.logger.info(f'Scraping {stats_file}')
+        stats_df = pd.read_html(stats_file_contents, match=category_caption)[0]
 
         # Rename the 'For <team name>' columns as they are unique to each team.
         stats_df.rename(columns=lambda x: re.sub('^For.+', '', x), inplace=True)
