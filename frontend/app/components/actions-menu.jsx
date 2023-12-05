@@ -60,7 +60,7 @@ export default function ActionsMenu() {
                 />
                 <Action name="Train" src="/images/train.png" href="/train" />
             </nav>
-            <div className="mt-2 flex justify-center">
+            {/* <div className="mt-2 flex justify-center">
                 {isNavbarOpen ? (
                     <div
                         class="flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-gray-400 p-2 text-white"
@@ -80,7 +80,7 @@ export default function ActionsMenu() {
                         <FaArrowDown />
                     </div>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 }
