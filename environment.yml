@@ -18,6 +18,5 @@ dependencies:
   - matplotlib
   - seaborn
   - fastapi
-  - jinja2
   - uvicorn-standard
   - sse-starlette
