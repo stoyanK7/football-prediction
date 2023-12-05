@@ -18,8 +18,6 @@ def get_logger(logger_name: str) -> tuple[logging.Logger, str]:
 
     logfile = f'{logger_name}.log'
     log_path = Path(LOGS_DIR, logfile)
-    if log_path.exists():
-        log_path.unlink()
 
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.INFO)
