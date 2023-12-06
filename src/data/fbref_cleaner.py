@@ -37,7 +37,9 @@ class FbrefCleaner:
 
     def clean(self) -> None:
         """Clean the data."""
-        matches_df = pd.read_csv(self.raw_data_file_path)
+        # low_memory=False is needed because some columns contain a mix of
+        # types.
+        matches_df = pd.read_csv(self.raw_data_file_path, low_memory=False)
 
         # Column operations.
         matches_df = self.normalize_column_names(matches_df)
@@ -46,17 +48,20 @@ class FbrefCleaner:
         matches_df = self.create_penalties_columns_from_goals_columns(
             matches_df
         )
-        matches_df = self.convert_goals_columns_to_int(matches_df)
 
         # Row operations.
-        if self.competition:
-            matches_df = self.narrow_down_to_single_competition(
-                matches_df, self.competition
-            )
+        matches_df = self.narrow_down_to_single_competition(
+            matches_df, self.competition
+        )
         matches_df = self.remove_rows_with_lots_of_missing_values(
             matches_df, threshold=10
         )
         matches_df = self.normalize_team_names(matches_df)
+
+        # Convert goals columns to int. It's a column operation, but it has to
+        # be done after the row operations because the goals columns contain
+        # NaNs.
+        matches_df = self.convert_goals_columns_to_int(matches_df)
 
         # Save.
         save_path = Path(
