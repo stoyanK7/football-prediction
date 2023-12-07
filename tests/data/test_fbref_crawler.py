@@ -192,10 +192,10 @@ def test_recrawl_errored_pages(mocker, tmpdir, requests_mock):
         ),
     ],
 )
-def test_convert_href_to_file_name(href, expected_file_name):
+def test_convert_href_to_file_name(tmpdir, href, expected_file_name):
     crawler = FbrefCrawler(
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
-        html_folder_path=Path('.pages'),
+        html_folder_path=Path(tmpdir, '.pages'),
     )
 
     file_name = crawler.convert_href_to_file_name(href)
@@ -216,10 +216,10 @@ def test_convert_href_to_file_name(href, expected_file_name):
         ),
     ],
 )
-def test_convert_file_name_to_href(file_name, expected_href):
+def test_convert_file_name_to_href(tmpdir, file_name, expected_href):
     crawler = FbrefCrawler(
         competition_stats_href='/en/comps/20/Bundesliga-Stats',
-        html_folder_path=Path('.pages'),
+        html_folder_path=Path(tmpdir, '.pages'),
     )
 
     href = crawler.convert_file_name_to_href(file_name)
