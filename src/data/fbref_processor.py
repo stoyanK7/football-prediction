@@ -212,7 +212,7 @@ class FbrefProcessor:
         :return: Dataframe with the important columns with a prefix added.
         """
         df = df.copy()
-        info_columns = ['date', 'team', 'opponent', 'venue']
+        info_columns = ['date', 'team', 'opponent', 'venue', 'match_id']
         for col in info_columns:
             df[f'{FbrefProcessor.info_prefix}{col}'] = df[col]
         logger.info('Marked information columns.')
