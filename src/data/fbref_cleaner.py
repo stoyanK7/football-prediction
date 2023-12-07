@@ -53,10 +53,10 @@ class FbrefCleaner:
         matches_df = self.narrow_down_to_single_competition(
             matches_df, self.competition
         )
+        matches_df = self.normalize_team_names(matches_df)
         matches_df = self.remove_rows_with_lots_of_missing_values(
             matches_df, threshold=10
         )
-        matches_df = self.normalize_team_names(matches_df)
 
         # Convert goals columns to int. It's a column operation, but it has to
         # be done after the row operations because the goals columns contain
@@ -190,10 +190,18 @@ class FbrefCleaner:
         """
         df = df.copy()
         goals_cols = ['gf', 'ga']
+
+        def convert_goals_column_to_int(x: str) -> int:
+            if isinstance(x, int):
+                return x
+            if ' ' in x:
+                x = x.split(' ')[0]
+            if '.' in x:
+                x = x.split('.')[0]
+            return int(x)
+
         for col in goals_cols:
-            df[col] = df[col].str.split(' ').str[0]
-            df[col] = df[col].str.split('.').str[0]
-            df[col] = df[col].astype('int')
+            df[col] = df[col].apply(convert_goals_column_to_int)
 
         logger.info(f'Converted goals columns({goals_cols}) to int.')
         return df
@@ -228,6 +236,20 @@ class FbrefCleaner:
         :return: DataFrame with rows with lots of missing values removed.
         """
         df = df.copy()
+        # Drop rows where team or opponent is NaN.
+        df = df.dropna(subset=['team'])
+        df = df.dropna(subset=['opponent'])
+        # Convert date column to datetime.
+        df['date'] = pd.to_datetime(df['date'])
+        # Rows of future matches will have lots of missing values, however, we
+        # want to keep them because we want to predict them. Extract one match
+        # per team that is after now and keep those rows.
+        future_matches = df[df['date'] > pd.Timestamp.now()]
+        # Resetting index to make 'team' a regular column.
+        future_matches = future_matches.groupby('team').first().reset_index()
+        # Fill with -1 as we don't care about the values. This is the future.
+        future_matches = future_matches.fillna(-1)
+        df = df[df['date'] <= pd.Timestamp.now()]
         # Threshold is the amount of missing values a row can have before it
         # gets dropped. So we need to subtract the threshold from the total
         # amount of columns.
@@ -237,6 +259,10 @@ class FbrefCleaner:
         logger.info(
             f'Dropped {initial_amount_of_rows - df.shape[0]} rows with '
             f'{threshold} or more missing values.'
+        )
+        df = pd.concat([df, future_matches])
+        logger.info(
+            f'Added {future_matches.shape[0]} rows of future matches back.'
         )
         return df
 
