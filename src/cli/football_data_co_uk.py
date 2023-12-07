@@ -5,8 +5,8 @@ from typing import Annotated
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from data.football_data_co_uk_cleaner import FootballDataCoUkCleaner
-from data.football_data_co_uk_processor import FootballDataCoUkProcessor
+from src.data.football_data_co_uk_cleaner import FootballDataCoUkCleaner
+from src.data.football_data_co_uk_processor import FootballDataCoUkProcessor
 from settings import (
     RAW_DATA_DIR,
     REQUEST_HEADERS,
