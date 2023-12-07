@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 from src.log import get_logger
 from src.data.fbref import categories
 
+logger = get_logger(__name__)
+
 
 class FbrefCrawler:
 
@@ -16,9 +18,6 @@ class FbrefCrawler:
     Crawls FBref and saves the HTML pages so that they
     can be scraped later.
     """
-
-    logger_name = 'crawling'
-    logger, logfile = get_logger(logger_name)
 
     # The base URL of the website.
     base_url: str = 'https://fbref.com'
@@ -54,7 +53,7 @@ class FbrefCrawler:
         self.html_folder_path = html_folder_path
         if not self.html_folder_path.exists():
             self.html_folder_path.mkdir(parents=True)
-            FbrefCrawler.logger.info(f'Created folder {self.html_folder_path}')
+            logger.info(f'Created folder {self.html_folder_path}')
 
         self.seasons_to_crawl = seasons_to_crawl
         self.seconds_to_sleep = seconds_to_sleep_between_requests
@@ -83,7 +82,7 @@ class FbrefCrawler:
                 stats_page_soup
             )
 
-        FbrefCrawler.logger.info('DONE')
+        logger.info('DONE')
 
     def recrawl_errored_pages(self) -> None:
         """
@@ -91,21 +90,21 @@ class FbrefCrawler:
         if the crawler was interrupted and some pages were not crawled.
         """
         for file_path in self.html_folder_path.glob('**/*.html'):
-            FbrefCrawler.logger.info(f'Checking {file_path}')
+            logger.info(f'Checking {file_path}')
             with open(file_path, 'r') as f:
                 html = f.read()
             soup = BeautifulSoup(html, features='html.parser')
             if soup.select_one('h1:-soup-contains("403 error")'):
                 fixed_page = False
                 while not fixed_page:
-                    FbrefCrawler.logger.info(f'Recrawling {file_path}')
+                    logger.info(f'Recrawling {file_path}')
                     href = self.convert_file_name_to_href(file_path.name)
                     html = self.save_page(href)
                     soup = BeautifulSoup(html, features='html.parser')
                     if not soup.select_one('h1:-soup-contains("403 error")'):
                         fixed_page = True
 
-        FbrefCrawler.logger.info('DONE')
+        logger.info('DONE')
 
     def save_page(self, href: str) -> str:
         """
@@ -201,7 +200,7 @@ class FbrefCrawler:
         file_path = Path(self.html_folder_path, file_name)
         with open(file_path, 'w') as f:
             f.write(text)
-            FbrefCrawler.logger.info(f'Saved {file_path}')
+            logger.info(f'Saved {file_path}')
 
     def get_html(self, url: str) -> str:
         """
@@ -211,7 +210,7 @@ class FbrefCrawler:
         :return: The HTML page as a string.
         """
         html = requests.get(url, headers=self.request_headers)
-        FbrefCrawler.logger.info(f'Made a request to {url}')
+        logger.info(f'Made a request to {url}')
         return html.text
 
     def build_url(self, href: str) -> str:

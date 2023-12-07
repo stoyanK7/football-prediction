@@ -9,6 +9,8 @@ import pandas as pd
 from src.log import get_logger
 from src.data.fbref import categories
 
+logger = get_logger(__name__)
+
 
 class FbrefScraper:
 
@@ -16,9 +18,6 @@ class FbrefScraper:
     Scrapes data off FBref pages that have been crawled by
     :class:`FbrefCrawler`.
     """
-
-    logger_name = 'scraping'
-    logger, logfile = get_logger(logger_name)
 
     def __init__(
         self,
@@ -39,9 +38,7 @@ class FbrefScraper:
         self.raw_data_folder_path = raw_data_folder_path
         if not self.raw_data_folder_path.exists():
             self.raw_data_folder_path.mkdir(parents=True)
-            FbrefScraper.logger.info(
-                f'Created folder {self.raw_data_folder_path}'
-            )
+            logger.info(f'Created folder {self.raw_data_folder_path}')
 
         self.competition = competition.lower().replace(' ', '_')
         self.html_pages = self.get_html_pages()
@@ -58,7 +55,7 @@ class FbrefScraper:
             competition_matches_dfs.append(team_df)
 
         self.save_dataframe(pd.concat(competition_matches_dfs))
-        FbrefScraper.logger.info('DONE')
+        logger.info('DONE')
 
     def get_html_pages(self) -> list[str]:
         """
@@ -67,7 +64,7 @@ class FbrefScraper:
         :return: A list of files.
         """
         pages = listdir(self.html_folder_path)
-        FbrefScraper.logger.info(f'Found {len(pages)} pages')
+        logger.info(f'Found {len(pages)} pages')
         return pages
 
     def get_teams_stats_pages_files(self) -> list[str]:
@@ -93,7 +90,7 @@ class FbrefScraper:
         :param team_stats_page_file: The name of the team stats page file.
         :return: A dataframe containing the matches and categories of stats.
         """
-        FbrefScraper.logger.info(f'Scraping {team_stats_page_file}')
+        logger.info(f'Scraping {team_stats_page_file}')
         team_name = self.get_team_name(team_stats_page_file)
         team_stats_file_path = Path(self.html_folder_path, team_stats_page_file)
         # Wrap in StringIO to prevent warnings.
@@ -167,7 +164,7 @@ class FbrefScraper:
         stats_file = Path(self.html_folder_path, stats_page)
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read_text())
-        FbrefScraper.logger.info(f'Scraping {stats_file}')
+        logger.info(f'Scraping {stats_file}')
         stats_df = pd.read_html(stats_file_contents, match=category_caption)[0]
 
         # Rename the 'For <team name>' columns as they are unique to each team.
@@ -201,7 +198,7 @@ class FbrefScraper:
             self.raw_data_folder_path, f'{self.competition}_matches.csv'
         )
         df.to_csv(path_to_save, index=False)
-        FbrefScraper.logger.info(
+        logger.info(
             f'Saved {len(df)} matches to ' f'{path_to_save}_matches.csv'
         )
 

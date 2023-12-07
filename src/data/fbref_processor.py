@@ -4,13 +4,12 @@ import pandas as pd
 
 from src.log import get_logger
 
+logger = get_logger(__name__)
+
 
 class FbrefProcessor:
 
     """Processes data cleaned from :class:`FbrefCleaner`."""
-
-    logger_name = 'processing'
-    logger, logfile = get_logger(logger_name)
 
     # This prefix is used to mark columns that are important for the model.
     feat_perfix = 'feat_'
@@ -48,11 +47,11 @@ class FbrefProcessor:
             self.processed_data_folder_path, self.cleaned_data_file_path.name
         )
         matches_df.to_csv(save_path, index=False)
-        FbrefProcessor.logger.info(
+        logger.info(
             f'Saved {matches_df.shape[0]} rows and '
             f'{matches_df.shape[1]} cols of data to {save_path}.'
         )
-        FbrefProcessor.logger.info('DONE')
+        logger.info('DONE')
 
     @staticmethod
     def create_target_column(df: pd.DataFrame) -> pd.DataFrame:
@@ -65,7 +64,7 @@ class FbrefProcessor:
         """
         df = df.copy()
         df['target'] = (df['result'] == 'W').astype('int')
-        FbrefProcessor.logger.info('Created target column.')
+        logger.info('Created target column.')
         return df
 
     @staticmethod
@@ -92,7 +91,7 @@ class FbrefProcessor:
         )
         df[f'{FbrefProcessor.feat_perfix}day_code'] = df['date'].dt.dayofweek
         df[f'{FbrefProcessor.feat_perfix}month_code'] = df['date'].dt.month
-        FbrefProcessor.logger.info('Converted object columns to int columns.')
+        logger.info('Converted object columns to int columns.')
         return df
 
     @staticmethod
@@ -118,7 +117,7 @@ class FbrefProcessor:
             else f'{row["date"]}_{row["opponent"]}_{row["team"]}',
             axis=1,
         )
-        FbrefProcessor.logger.info('Added match id column.')
+        logger.info('Added match id column.')
         return df
 
     @staticmethod
@@ -152,7 +151,7 @@ class FbrefProcessor:
         df = df.droplevel(0)
         # Fix the index because there might be duplicate indices.
         df.reset_index(drop=True, inplace=True)
-        FbrefProcessor.logger.info('Created rolling average columns.')
+        logger.info('Created rolling average columns.')
 
         return df
 
@@ -200,7 +199,7 @@ class FbrefProcessor:
         df = df.copy()
         numeric_columns = df.select_dtypes(include=['number']).columns
         df.fillna(df[numeric_columns].mean(), inplace=True)
-        FbrefProcessor.logger.info('Filled NaN values with mean.')
+        logger.info('Filled NaN values with mean.')
         return df
 
     @staticmethod
@@ -216,7 +215,7 @@ class FbrefProcessor:
         info_columns = ['date', 'team', 'opponent', 'venue']
         for col in info_columns:
             df[f'{FbrefProcessor.info_prefix}{col}'] = df[col]
-        FbrefProcessor.logger.info('Marked information columns.')
+        logger.info('Marked information columns.')
         return df
 
     @staticmethod
@@ -233,5 +232,5 @@ class FbrefProcessor:
             regex=f'^({FbrefProcessor.feat_perfix}|'
             f'{FbrefProcessor.info_prefix}|target)'
         )
-        FbrefProcessor.logger.info('Dropped all irrelevant columns.')
+        logger.info('Dropped all irrelevant columns.')
         return df
