@@ -60,6 +60,12 @@ def test_mark_information_columns():
             'team': ['Arsenal', 'Arsenal', 'Arsenal', 'Arsenal'],
             'opponent': ['Brentford', 'Brentford', 'Brentford', 'Brentford'],
             'venue': ['Home', 'Home', 'Home', 'Home'],
+            'match_id': [
+                '2021-03-14_Arsenal_Brentford',
+                '2021-04-14_Arsenal_Brentford',
+                '2021-05-14_Arsenal_Brentford',
+                '2021-06-14_Arsenal_Brentford',
+            ],
         }
     )
 
@@ -70,10 +76,12 @@ def test_mark_information_columns():
         'team',
         'opponent',
         'venue',
+        'match_id',
         'info_date',
         'info_team',
         'info_opponent',
         'info_venue',
+        'info_match_id',
     ]
 
 
