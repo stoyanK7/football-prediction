@@ -38,6 +38,8 @@ class FbrefProcessor:
         matches_df = self.create_rolling_average_columns(matches_df)
         matches_df = self.fill_na_values_with_mean(matches_df)
         matches_df = self.convert_obj_columns_to_int(matches_df)
+        matches_df = self.add_match_id_column(matches_df)
+
         matches_df = self.create_target_column(matches_df)
         matches_df = self.mark_information_columns(matches_df)
         matches_df = self.drop_all_irrelevant_columns(matches_df)
@@ -91,6 +93,32 @@ class FbrefProcessor:
         df[f'{FbrefProcessor.feat_perfix}day_code'] = df['date'].dt.dayofweek
         df[f'{FbrefProcessor.feat_perfix}month_code'] = df['date'].dt.month
         FbrefProcessor.logger.info('Converted object columns to int columns.')
+        return df
+
+    @staticmethod
+    def add_match_id_column(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Add a match id column to the dataframe. The match id is a combination of
+        the date and team columns. If the match is played at home, the team
+        column is used. If the match is played away, the opponent column is
+        used.
+
+        For example, if Arsenal plays at home against Brentford on 2021-08-13,
+        the match id will be 2021-08-13_Arsenal_Brentford. If Arsenal plays away
+        against Brentford on 2021-08-13, the match id will be
+        2021-08-13_Brentford_Arsenal.
+
+        :param df: Dataframe containing the date and team columns.
+        :return: Dataframe with the match id column.
+        """
+        df = df.copy()
+        df['match_id'] = df.apply(
+            lambda row: f'{row["date"]}_{row["team"]}_{row["opponent"]}'
+            if row['venue'] == 'Home'
+            else f'{row["date"]}_{row["opponent"]}_{row["team"]}',
+            axis=1,
+        )
+        FbrefProcessor.logger.info('Added match id column.')
         return df
 
     @staticmethod

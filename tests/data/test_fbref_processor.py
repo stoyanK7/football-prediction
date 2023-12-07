@@ -112,3 +112,23 @@ def test_drop_all_irrelevant_columns():
         'info_venue',
         'target',
     ]
+
+
+def test_add_match_id_column():
+    df = pd.DataFrame(
+        {
+            'date': ['2021-03-14', '2021-04-14', '2021-05-14', '2021-06-14'],
+            'team': ['Arsenal', 'Oxford', 'Manchester', 'Arsenal'],
+            'opponent': ['Brentford', 'Leverkusen', 'Levski', 'Bayer Munich'],
+            'venue': ['Home', 'Away', 'Home', 'Away'],
+        }
+    )
+
+    df = FbrefProcessor.add_match_id_column(df)
+
+    assert df['match_id'].tolist() == [
+        '2021-03-14_Arsenal_Brentford',
+        '2021-04-14_Leverkusen_Oxford',
+        '2021-05-14_Manchester_Levski',
+        '2021-06-14_Bayer Munich_Arsenal',
+    ]
