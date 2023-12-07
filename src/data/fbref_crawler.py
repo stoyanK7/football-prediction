@@ -89,6 +89,7 @@ class FbrefCrawler:
         Recrawl all pages that were not crawled successfully. This is useful
         if the crawler was interrupted and some pages were not crawled.
         """
+        # TODO: Can be optimized by using grep or something similar.
         for file_path in self.html_folder_path.glob('**/*.html'):
             logger.info(f'Checking {file_path}')
             with open(file_path, 'r') as f:
