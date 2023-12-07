@@ -32,7 +32,7 @@ class FootballDataCoUkCleaner:
         """
         self.raw_data_folder_path = raw_data_folder_path
         self.cleaned_data_folder_path = cleaned_data_folder_path
-        self.competition = competition
+        self.competition = competition.replace(' ', '_').lower()
 
     def clean(self) -> None:
         """Clean the data."""
