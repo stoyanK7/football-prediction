@@ -117,7 +117,7 @@ class FbrefCrawler:
         url = self.build_url(href)
         html = self.get_html(url)
 
-        file_name = f'{self.convert_href_to_file_name(href)}.html'
+        file_name = f'{self.convert_href_to_file_name(href)}'
         self.save_file(file_name, html)
 
         sleep(self.seconds_to_sleep)
