@@ -7,7 +7,12 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from data.football_data_co_uk_cleaner import FootballDataCoUkCleaner
 from data.football_data_co_uk_processor import FootballDataCoUkProcessor
-from settings import RAW_DATA_DIR, REQUEST_HEADERS, INTERIM_DATA_DIR
+from settings import (
+    RAW_DATA_DIR,
+    REQUEST_HEADERS,
+    INTERIM_DATA_DIR,
+    PROCESSED_DATA_DIR,
+)
 from src.data.football_data_co_uk_scraper import FootballDataCoUkScraper
 
 football_data_co_uk_app = typer.Typer()
@@ -80,7 +85,7 @@ def clean(
 def process():
     processor = FootballDataCoUkProcessor(
         cleaned_data_file_path=Path(INTERIM_DATA_DIR, 'bundesliga_1_odds.csv'),
-        processed_data_folder_path=Path(INTERIM_DATA_DIR),
+        processed_data_folder_path=Path(PROCESSED_DATA_DIR),
     )
     with Progress(
         SpinnerColumn(),

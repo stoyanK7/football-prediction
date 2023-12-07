@@ -34,10 +34,10 @@ class FbrefProcessor:
         """Process cleaned data."""
         matches_df = pd.read_csv(self.cleaned_data_file_path)
 
+        matches_df = self.add_match_id_column(matches_df)
         matches_df = self.create_rolling_average_columns(matches_df)
         matches_df = self.fill_na_values_with_mean(matches_df)
         matches_df = self.convert_obj_columns_to_int(matches_df)
-        matches_df = self.add_match_id_column(matches_df)
 
         matches_df = self.create_target_column(matches_df)
         matches_df = self.mark_information_columns(matches_df)
