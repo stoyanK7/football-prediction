@@ -9,6 +9,22 @@
     </a>
 </p>
 
+## Project structure
+
+```sh
+├── data                  #  All data.
+│   ├── interim           #  Cleaned data.
+│   ├── processed         #  Processed data (ready for training).
+│   ├── raw               #  Raw scraped data.
+│   └── test              #  Data used for tests.
+├── logs                  #  Logfiles from different tasks.
+├── notebooks             #  Notebooks with experiments.
+├── src                   #  Source code for use in this project.
+│   ├── cli               #  Code for the CLI interface.
+│   └── data              #  Code for data scraping, cleaning and processing.
+└── tests                 #  Unit and integration tests.
+```
+
 ## Environment Setup
 
 ```sh
@@ -16,10 +32,13 @@ conda env create -f environment.yml
 conda activate football_prediction
 ```
 
-## Run API
+## CLI
 
 ```sh
-uvicorn src.api.main:app --port 3000 --reload
+python -m src.cli.main crawl
+python -m src.cli.main scrape
+python -m src.cli.main clean
+python -m src.cli.main process
 ```
 
 ## Run Tests
