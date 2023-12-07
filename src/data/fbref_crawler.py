@@ -99,13 +99,7 @@ class FbrefCrawler:
                 fixed_page = False
                 while not fixed_page:
                     FbrefCrawler.logger.info(f'Recrawling {file_path}')
-                    href = (
-                        file_path.name.replace('(', '/')
-                        .replace('_', ':')
-                        .replace('all:comps', 'all_comps')
-                        .replace('.html', '')
-                        .replace(FbrefCrawler.base_url, '')
-                    )
+                    href = self.convert_file_name_to_href(file_path.name)
                     html = self.save_page(href)
                     soup = BeautifulSoup(html, features='html.parser')
                     if not soup.select_one('h1:-soup-contains("403 error")'):
@@ -124,7 +118,7 @@ class FbrefCrawler:
         url = self.build_url(href)
         html = self.get_html(url)
 
-        file_name = f'{self.convert_to_valid_file_name(url)}.html'
+        file_name = f'{self.convert_href_to_file_name(href)}.html'
         self.save_file(file_name, html)
 
         sleep(self.seconds_to_sleep)
@@ -172,15 +166,30 @@ class FbrefCrawler:
         )['href']
 
     @staticmethod
-    def convert_to_valid_file_name(name_to_convert: str) -> str:
+    def convert_href_to_file_name(href: str) -> str:
         """
         Convert the given name to a valid file name. For example, file
         names are not allowed to contain slashes (/) or colons (:).
 
-        :param name_to_convert: The name to convert.
+        :param href: The href to convert.
         :return: The valid file name.
         """
-        return name_to_convert.replace('/', '(').replace(':', '_')
+        return href.replace('/', '_sl4sh_').replace(':', '_d0td0t_') + '.html'
+
+    @staticmethod
+    def convert_file_name_to_href(file_name: str) -> str:
+        """
+        Convert the given file name to an url. This does the opposite of
+        convert_href_to_file_name.
+
+        :param file_name: Name of the file to convert.
+        :return: The url.
+        """
+        return (
+            file_name.replace('_sl4sh_', '/')
+            .replace('_d0td0t_', ':')
+            .replace('.html', '')
+        )
 
     def save_file(self, file_name: str, text: str) -> None:
         """

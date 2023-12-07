@@ -1,6 +1,8 @@
 """Tests for the FbrefCrawler class."""
 from pathlib import Path
 
+import pytest
+
 from settings import TEST_DATA_DIR
 from src.data.fbref_crawler import FbrefCrawler
 
@@ -175,3 +177,51 @@ def test_recrawl_errored_pages(mocker, tmpdir, requests_mock):
     crawler.recrawl_errored_pages()
 
     assert mock_sleep.call_count == 11
+
+
+@pytest.mark.parametrize(
+    'href,expected_file_name',
+    [
+        (
+            '/en/comps/20/Bundesliga-Stats',
+            '_sl4sh_en_sl4sh_comps_sl4sh_20_sl4sh_Bundesliga-Stats.html',
+        ),
+        (
+            '/en/squads/054efa67/2022-2023/matchlogs/all_comps/passing_types/Bayern-Munich-Match-Logs-All-Competitions',
+            '_sl4sh_en_sl4sh_squads_sl4sh_054efa67_sl4sh_2022-2023_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_types_sl4sh_Bayern-Munich-Match-Logs-All-Competitions.html',
+        ),
+    ],
+)
+def test_convert_href_to_file_name(href, expected_file_name):
+    crawler = FbrefCrawler(
+        competition_stats_href='/en/comps/20/Bundesliga-Stats',
+        html_folder_path=Path('.pages'),
+    )
+
+    file_name = crawler.convert_href_to_file_name(href)
+
+    assert file_name == expected_file_name
+
+
+@pytest.mark.parametrize(
+    'file_name,expected_href',
+    [
+        (
+            '_sl4sh_en_sl4sh_comps_sl4sh_20_sl4sh_Bundesliga-Stats.html',
+            '/en/comps/20/Bundesliga-Stats',
+        ),
+        (
+            '_sl4sh_en_sl4sh_squads_sl4sh_054efa67_sl4sh_2022-2023_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_types_sl4sh_Bayern-Munich-Match-Logs-All-Competitions.html',
+            '/en/squads/054efa67/2022-2023/matchlogs/all_comps/passing_types/Bayern-Munich-Match-Logs-All-Competitions',
+        ),
+    ],
+)
+def test_convert_file_name_to_href(file_name, expected_href):
+    crawler = FbrefCrawler(
+        competition_stats_href='/en/comps/20/Bundesliga-Stats',
+        html_folder_path=Path('.pages'),
+    )
+
+    href = crawler.convert_file_name_to_href(file_name)
+
+    assert href == expected_href
