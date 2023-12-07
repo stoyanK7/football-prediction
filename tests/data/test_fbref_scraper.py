@@ -1,6 +1,8 @@
 """Tests for the FbrefScraper class."""
 from pathlib import Path
 
+import pytest
+
 from settings import TEST_DATA_DIR
 from src.data.fbref_scraper import FbrefScraper
 
@@ -46,3 +48,28 @@ def test_get_latest_season():
     )
 
     assert latest_season == '2024-2025'
+
+
+@pytest.mark.parametrize(
+    'file_name,expected_team_name',
+    [
+        (
+            '_sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022_sl4sh_Wolfsburg-Stats.html',
+            'Wolfsburg',
+        ),
+        (
+            '_sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022_sl4sh_Hannover-96-Stats.html',
+            'Hannover 96',
+        ),
+    ],
+)
+def test_get_team_name(file_name, expected_team_name):
+    scraper = FbrefScraper(
+        html_folder_path=Path(TEST_DATA_DIR, 'test_fbref_scraper'),
+        raw_data_folder_path=Path(),
+        competition='Bundesliga',
+    )
+
+    team_name = scraper.get_team_name(file_name)
+
+    assert team_name == expected_team_name

@@ -120,12 +120,12 @@ class FbrefScraper:
         :return: The team name.
         """
         # An example team stats page file name is:
-        # https_((fbref.com(en(squads(60b5e41f(2018-2019(Hannover-96-Stats.html
+        # _sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022_sl4sh_Wolfsburg-Stats.html
         return (
-            team_stats_page_file.split('(')[-1]  # Hannover-96-Stats.html
-            .replace('-Stats', '')  # Hannover-96.html
-            .replace('-', ' ')  # Hannover 96.html
-            .replace('.html', '')  # Hannover 96
+            team_stats_page_file.split('_sl4sh_')[-1]  # Wolfsburg-Stats.html
+            .replace('-Stats', '')  # Wolfsburg.html
+            .replace('-', ' ')  # Wolfsburg.html
+            .replace('.html', '')  # Wolfsburg
             .strip()  # Just in case.
         )
 
@@ -144,23 +144,25 @@ class FbrefScraper:
         :return: A dataframe containing the stats.
         """
         # An example team stats page file name is:
-        # https_((fbref.com(en(squads(60b5e41f(2018-2019(Hannover-96-Stats
-        link_without_team = '('.join(team_stats_page_file.split('(')[:-1])
+        # _sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022_sl4sh_Wolfsburg-Stats.html
+        link_without_team = '_sl4sh_'.join(
+            team_stats_page_file.split('_sl4sh_')[:-1]
+        )
         # link_without_team is now:
-        # https_((fbref.com(en(squads(60b5e41f(2018-2019
+        # _sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022
 
         # If the link_without_team doesn't end in a year-year, it means it's
         # the current season, and we need to add the current season to the link.
         if not re.search(r'\d{4}-\d{4}$', link_without_team):
-            link_without_team += f'({self.latest_season}'
+            link_without_team += f'_sl4sh_{self.latest_season}'
 
-        link_without_team = link_without_team.replace('(', r'\(')
         regex = re.compile(
-            rf'^{link_without_team}\(matchlogs\(all_comps\({category_href}\(.+'
+            rf'^{link_without_team}_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_{category_href}_sl4sh_.+'
         )
         stats_page = list(filter(regex.match, self.html_pages))[0]
         # stats_page is now:
-        # https_((fbref.com(en(squads(60b5e41f(2018-2019(matchlogs(all_comps(keeper(...html
+        # _sl4sh_en_sl4sh_squads_sl4sh_4eaa11d7_sl4sh_2021-2022_sl4sh_matchlogs
+        # _sl4sh_all_comps_sl4sh_shooting_sl4sh_Wolfsburg-Match-Logs.html
         stats_file = Path(self.html_folder_path, stats_page)
         # Wrap in StringIO to prevent warnings.
         stats_file_contents = StringIO(stats_file.read_text())
