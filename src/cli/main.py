@@ -16,4 +16,4 @@ app.add_typer(
 
 
 if __name__ == '__main__':
-    app(['football_data_co_uk', 'clean'])
+    app()
