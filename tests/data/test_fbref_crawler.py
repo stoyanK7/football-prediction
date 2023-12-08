@@ -82,10 +82,13 @@ def test_crawl(mocker, tmpdir, requests_mock):
 
     assert mock_sleep.call_count == 10
     assert len(list(crawler.html_folder_path.glob('*'))) == 10
-    assert (
-        crawler.html_folder_path.glob('**/*.html').__next__().name
-        == '_sl4sh_en_sl4sh_squads_sl4sh_c7a9f859_sl4sh_2023-2024_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_sl4sh_Bayer-Leverkusen-Match-Logs-All-Competitions.html'
+    file_to_check = (
+        crawler.html_folder_path
+        / '_sl4sh_en_sl4sh_squads_sl4sh_c7a9f859_sl4sh_2023-2024_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_sl4sh_Bayer-Leverkusen-Match-Logs-All-Competitions.html'
     )
+    assert (
+        file_to_check.exists()
+    ), f'File {file_to_check} does not exist in the folder.'
 
 
 def test_recrawl_errored_pages(mocker, tmpdir, requests_mock):
@@ -170,10 +173,13 @@ def test_recrawl_errored_pages(mocker, tmpdir, requests_mock):
 
     assert mock_sleep.call_count == 10
     assert len(list(crawler.html_folder_path.glob('**/*.html'))) == 10
-    assert (
-        crawler.html_folder_path.glob('**/*.html').__next__().name
-        == '_sl4sh_en_sl4sh_squads_sl4sh_c7a9f859_sl4sh_2023-2024_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_sl4sh_Bayer-Leverkusen-Match-Logs-All-Competitions.html'
+    file_to_check = (
+        crawler.html_folder_path
+        / '_sl4sh_en_sl4sh_squads_sl4sh_c7a9f859_sl4sh_2023-2024_sl4sh_matchlogs_sl4sh_all_comps_sl4sh_passing_sl4sh_Bayer-Leverkusen-Match-Logs-All-Competitions.html'
     )
+    assert (
+        file_to_check.exists()
+    ), f'File {file_to_check} does not exist in the folder.'
 
     requests_mock.get(
         'https://fbref.com/en/squads/c7a9f859/2023-2024/matchlogs/all_comps/misc/Bayer-Leverkusen-Match-Logs-All-Competitions',

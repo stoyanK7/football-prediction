@@ -126,12 +126,24 @@ def test_remove_rows_with_lots_of_missing_values():
             'c': [None, None, None, None, 5],
             'd': [None, 2, 3, 4, 5],
             'e': [None, None, None, 4, 5],
+            'team': ['a', 'b', 'c', 'd', 'e'],
+            'opponent': ['a', 'b', 'c', 'd', 'e'],
+            'date': [pd.Timestamp('2020-01-01')] * 5,
         }
     )
 
     df = FbrefCleaner.remove_rows_with_lots_of_missing_values(df, 2)
 
-    assert df.columns.tolist() == ['a', 'b', 'c', 'd', 'e']
+    assert df.columns.tolist() == [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'team',
+        'opponent',
+        'date',
+    ]
     assert len(df) == 3
 
 

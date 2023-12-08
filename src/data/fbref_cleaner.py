@@ -156,7 +156,7 @@ class FbrefCleaner:
 
     @staticmethod
     def create_penalties_columns_from_goals_columns(
-        df: pd.DataFrame
+        df: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Split the goals columns into goals and penalties columns. Some goal rows
