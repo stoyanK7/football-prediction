@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+scikit-learn = "*"
+requests = "*"
+beautifulsoup4 = "*"
+tqdm = "*"
+jupyter = "*"
+lxml = "*"
+html5lib = "*"
+typer = "*"
+jinja2 = "*"
+rich = "*" # For some reasion, it's not installed by default with 'typer'.
+
+[dev-packages]
+ruff = "*"
+pytest = "*"
+pytest-mock = "*"
+requests-mock = "*"
+
+[requires]
+python_version = "3.12"
+python_full_version = "3.12.0"

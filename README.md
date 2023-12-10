@@ -28,8 +28,7 @@
 ## Environment Setup
 
 ```sh
-conda env create -f environment.yml
-conda activate football_prediction
+pipenv install --dev
 ```
 
 ## CLI
