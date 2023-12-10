@@ -18,6 +18,7 @@ html5lib = "*"
 typer = "*"
 jinja2 = "*"
 rich = "*" # For some reasion, it's not installed by default with 'typer'.
+tensorflow = {extras = ["and-cuda"], version = "*"}
 
 [dev-packages]
 ruff = "*"
